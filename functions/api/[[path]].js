@@ -21,18 +21,20 @@ export async function onRequest({request:req,env,params}){
  const DB=env.DB,url=new URL(req.url),p=(params.path||[]).join('/'),M=req.method;
  try{
  if(p==='config'){await cleanup(DB);const c=await settings(DB);const s=(await DB.prepare('SELECT id,category,name,description,price,minutes FROM services WHERE active=1').all()).results;
-  const{bank_alias,bank_cbu,bank_titular,bank_banco,whatsapp,deposit_pct,open,close,step,closed_days,policy}=c;return J({whatsapp,deposit_pct,open,close,step,closed_days,policy,bank:{alias:bank_alias,cbu:bank_cbu,titular:bank_titular,banco:bank_banco},services:s})}
+  const{bank_alias,bank_cbu,bank_titular,bank_banco,whatsapp,deposit_pct,open,close,step,closed_days,policy}=c;return J({whatsapp,deposit_pct,open,close,step,closed_days,policy,antimicotico_extra_price:c.antimicotico_extra_price??'2500',bank:{alias:bank_alias,cbu:bank_cbu,titular:bank_titular,banco:bank_banco},services:s})}
  if(p==='availability'){await cleanup(DB);const d=url.searchParams.get('date')||'',dur=+url.searchParams.get('minutes')||0;if(!/^\d{4}-\d\d-\d\d$/.test(d)||dur<=0)return J({error:'Datos inválidos'},400);
   return J({slots:(await avail(DB,await settings(DB),d,dur)).map(hh)})}
  if(p==='bookings'&&M==='POST'){await cleanup(DB);const b=await req.json(),c=await settings(DB);
-  const name=clean(b.name,80),phone=clean(b.phone,30),date=clean(b.date,10),t=clean(b.time,4),ids=Array.isArray(b.serviceIds)?[...new Set(b.serviceIds)].slice(0,10):[];
+  const name=clean(b.name,80),phone=clean(b.phone,30),date=clean(b.date,10),t=clean(b.time,4),ids=Array.isArray(b.serviceIds)?[...new Set(b.serviceIds)].slice(0,10):[],treatmentQuantity=ids.includes('p5')?Number(b.treatmentQuantity??1):1,extraPrice=Number(c.antimicotico_extra_price??2500);
   if(name.length<3||phone.replace(/\D/g,'').length<8||!/^\d{4}-\d\d-\d\d$/.test(date)||!/^\d{4}$/.test(t)||!ids.length)return J({error:'Completá todos los datos'},400);
+  if(ids.includes('p5')&&(!Number.isInteger(treatmentQuantity)||treatmentQuantity<1||treatmentQuantity>10))return J({error:'Cantidad de dedos inválida'},400);
+  if(ids.includes('p5')&&(!Number.isSafeInteger(extraPrice)||extraPrice<=0))return J({error:'Precio adicional inválido'},500);
   const rows=(await DB.prepare(`SELECT * FROM services WHERE active=1 AND id IN(${ids.map(()=>'?').join(',')})`).bind(...ids).all()).results;
   if(rows.length!==ids.length)return J({error:'Servicio inválido'},400);
-  const total=rows.reduce((a,r)=>a+r.price,0),dur=rows.reduce((a,r)=>a+r.minutes,0),pct=+c.deposit_pct,dep=Math.round(total*pct/100),start=+t.slice(0,2)*60+ +t.slice(2),step=+c.step;
+  const total=rows.reduce((a,r)=>a+r.price+(r.id==='p5'?(treatmentQuantity-1)*extraPrice:0),0),dur=rows.reduce((a,r)=>a+r.minutes,0),pct=+c.deposit_pct,dep=Math.round(total*pct/100),start=+t.slice(0,2)*60+ +t.slice(2),step=+c.step,serviceNames=rows.map(r=>r.id==='p5'?`${r.name} (${treatmentQuantity} ${treatmentQuantity===1?'dedo':'dedos'})`:r.name).join(', ');
   if(!(await avail(DB,c,date,dur)).includes(start))return J({error:'Ese horario ya no está disponible'},409);
   const method=b.payMethod==='tr'?'transfer':'mp',id=crypto.randomUUID(),now=Date.now(),exp=now+(method==='mp'?+c.pending_minutes:+c.transfer_minutes)*60000,st=method==='mp'?'Pendiente de pago':'Pendiente de validación';
-  const q=[DB.prepare('INSERT INTO bookings(id,name,phone,email,notes,date,start_min,duration,services,total,deposit_pct,deposit,balance,pay_method,status,expires_at,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)').bind(id,name,phone,clean(b.email,100),clean(b.notes,300),date,start,dur,rows.map(r=>r.name).join(', '),total,pct,dep,total-dep,method,st,exp,now)];
+  const q=[DB.prepare('INSERT INTO bookings(id,name,phone,email,notes,date,start_min,duration,services,total,deposit_pct,deposit,balance,pay_method,status,expires_at,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)').bind(id,name,phone,clean(b.email,100),clean(b.notes,300),date,start,dur,serviceNames,total,pct,dep,total-dep,method,st,exp,now)];
   for(let x=start;x<start+dur;x+=step)q.push(DB.prepare('INSERT INTO slots(date,start_min,booking_id) VALUES(?,?,?)').bind(date,x,id));
   try{await DB.batch(q)}catch(e){return J({error:'Ese horario se acaba de ocupar'},409)}
   const out={id,deposit:dep,status:st};

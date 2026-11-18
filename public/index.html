@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#d6336c"><script type="application/ld+json">{"@context":"https://schema.org","@type":"HealthAndBeautyBusiness","name":"Ayelen Pedicura","telephone":"+5491136009440","address":{"@type":"PostalAddress","addressLocality":"Ciudad del Libertador General San Martín","addressCountry":"AR"}}</script><title>Ayelen Pedicura | Pedicura y Manicura – Reservá tu turno online</title>
+<meta name="theme-color" content="#a95569"><script type="application/ld+json">{"@context":"https://schema.org","@type":"HealthAndBeautyBusiness","name":"Ayelen Pedicura","telephone":"+5491136009440","address":{"@type":"PostalAddress","addressLocality":"Ciudad del Libertador General San Martín","addressCountry":"AR"}}</script><title>Ayelen Pedicura | Pedicura y Manicura – Reservá tu turno online</title>
 <meta name="description" content="Pedicura y manicura profesional. Reservá tu turno online y abonás solo una seña del 15 %.">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#fff8fa;--fg:#241820;--mut:#7a6670;--card:#fff;--pk:#d6336c;--pk2:#f8d7e3;--bd:#f1d9e2;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#16101a;--fg:#f7eaf0;--mut:#b9a3ae;--card:#211826;--pk:#ff5c9a;--pk2:#3a2133;--bd:#3a2a40}}
-:root[data-theme="dark"]{color-scheme:dark;--bg:#16101a;--fg:#f7eaf0;--mut:#b9a3ae;--card:#211826;--pk:#ff5c9a;--pk2:#3a2133;--bd:#3a2a40}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#211b1b;--fg:#f5ebe7;--mut:#c1aaa4;--card:#2b2223;--pk:#d28a98;--pk2:#3d2c30;--bd:#4b383c}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#211b1b;--fg:#f5ebe7;--mut:#c1aaa4;--card:#2b2223;--pk:#d28a98;--pk2:#3d2c30;--bd:#4b383c}
 html{scroll-behavior:smooth;scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 Inter,system-ui,sans-serif}
 h1,h2,h3,.logo{font-family:'Playfair Display',Georgia,serif;margin:0}
@@ -61,16 +61,111 @@ h2:after{content:"";display:block;width:48px;height:3px;background:var(--pk);bor
 .gal{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding-bottom:18px}.gal .ph{aspect-ratio:3/4;margin:0}.gal .ph:nth-child(even){transform:translateY(18px)}
 .lb{position:absolute;left:12px;bottom:10px;font:600 15px 'Playfair Display',serif;color:var(--fg);z-index:1}.ph.has .lb{color:#fff;text-shadow:0 1px 6px #000a}
 @media(max-width:700px){.gal{grid-template-columns:repeat(2,1fr)}}
+:root{--bg:#fbf7f3;--fg:#302521;--mut:#81716b;--card:#fffdfa;--pk:#a95569;--pk2:#f3e6e1;--bd:#e9d9d2}
+body{background:linear-gradient(180deg,var(--bg),#f8f2ed 65%,var(--bg))}
+.wrap{max-width:1120px}
+header{background:color-mix(in srgb,var(--bg) 88%,transparent)}
+header .wrap{height:68px}
+.logo{font-size:23px}
+nav a{transition:color .2s}
+nav a:hover{color:var(--pk)}
+.hero{padding:104px 0 92px;background:linear-gradient(145deg,var(--pk2) 0%,var(--bg) 68%,var(--pk2) 100%)}
+.hero:before{background:#d59c9d;opacity:.2}
+.hero:after{background:#ead2c8;opacity:.42}
+.hero h1{letter-spacing:-.025em}
+.hero p{font-size:17px}
+section{padding:64px 0}
+h2{font-size:clamp(28px,4vw,34px);letter-spacing:-.015em}
+h2:after{height:2px;background:#c78d8c}
+.sub{margin-top:8px}
+.grid{gap:20px}
+.card{padding:18px;border-radius:22px;box-shadow:0 12px 32px -24px #60453c66}
+.card:hover{box-shadow:0 18px 36px -20px #85525c55}
+.card h3{font-size:19px}
+.ph{border-radius:16px;background:linear-gradient(135deg,var(--pk2),var(--bd))}
+.ph.m{background:linear-gradient(135deg,var(--bd),var(--pk2))}
+.ph img{filter:saturate(.88)}
+.ben{gap:18px}
+.ben div{padding:22px 18px;background:linear-gradient(145deg,var(--pk2),var(--bg));border:1px solid var(--bd)}
+.ben b{display:inline-block;margin-bottom:4px}
+.box{border-radius:22px;padding:clamp(18px,4vw,30px);box-shadow:0 18px 42px -32px #60453c70}
+.step{padding-bottom:18px;border-bottom:1px solid var(--bd)}
+.step:last-of-type{border-bottom:0}
+.step>b{font-size:16px}
+.tab,.chip,.cal button,input,textarea{transition:border-color .2s,background-color .2s,box-shadow .2s}
+.tab{border-color:#d4a9a7;color:#94505c}
+.tab.on{background:#a95569;border-color:#a95569}
+.chip{border-radius:999px}
+.chip:hover:not(:disabled),.cal button:hover:not(:disabled){border-color:var(--pk);background:var(--pk2)}
+.chip.on{border-color:var(--pk);background:var(--pk2);color:#91495d}
+input,textarea{border-radius:14px;background:var(--bg)}
+input:focus,textarea:focus{outline:none;border-color:var(--pk);box-shadow:0 0 0 3px #a955691c}
+input::placeholder,textarea::placeholder{color:var(--mut)}
+.btn{background:linear-gradient(135deg,#985064,#b86e7c);box-shadow:0 8px 20px -9px #985064a6}
+.btn:hover{box-shadow:0 10px 24px -8px #985064a6}
+.btn.o{color:#985064;border-color:#c58c91}
+.sum,.ok,.warn{background:var(--pk2)}
+.sum .big{color:#985064}
+.cal button{border-radius:12px}
+.cal button.on{background:#a95569;border-color:#a95569}
+.wa{box-shadow:0 8px 22px #0003}
+footer{padding-top:34px}
+:focus-visible{outline:3px solid #bb7880;outline-offset:3px}
+@media(max-width:700px){
+  .hero{padding:78px 0 68px}
+  section{padding:46px 0}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr));gap:14px}
+  .gal{gap:10px}
+}
+@media(max-width:420px){
+  .wrap{padding-right:16px;padding-left:16px}
+  header .wrap{height:62px}
+  .logo{font-size:20px}
+  nav a{margin-left:8px}
+  .hero .btn{margin-bottom:8px}
+  .wa{right:12px;padding:12px 16px}
+  .cal{gap:4px}
+}
+.featured-treatment{padding:34px 0 18px}
+.treatment-card{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);overflow:hidden;background:var(--card);border:1px solid var(--bd);border-radius:26px;box-shadow:0 20px 46px -34px #60453c80}
+.treatment-art{min-height:340px;background:linear-gradient(145deg,var(--pk2),var(--bg))}
+.treatment-art img{display:block;width:100%;height:100%;min-height:340px;object-fit:cover}
+.treatment-content{display:flex;flex-direction:column;align-items:flex-start;padding:clamp(24px,4vw,42px)}
+.treatment-badge{display:inline-block;padding:6px 12px;border:1px solid var(--bd);border-radius:99px;background:var(--pk2);color:var(--pk);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.treatment-content h2{margin-top:16px}
+.treatment-lead{margin:8px 0 14px;font-size:16px;font-weight:500}
+.treatment-care{margin:0;color:var(--mut);font-size:14px}
+.treatment-bottom{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:18px;width:100%;margin-top:24px;padding-top:18px;border-top:1px solid var(--bd)}
+.treatment-price{display:flex;flex-direction:column;gap:2px}
+.treatment-price span{color:var(--mut);font-size:12px}
+.treatment-price strong{color:var(--pk);font-size:17px}
+.treatment-quantity{display:flex;flex-direction:column;gap:6px;color:var(--mut);font-size:12px;font-weight:600}
+.treatment-quantity select{min-width:82px;padding:9px 12px;border:1px solid var(--bd);border-radius:12px;background:var(--card);color:var(--fg);font:inherit}
+#treatment-quantity-booking{margin-top:12px}
+@media(max-width:700px){
+  .featured-treatment{padding:26px 0 10px}
+  .treatment-card{grid-template-columns:1fr}
+  .treatment-art,.treatment-art img{min-height:240px;max-height:300px}
+}
+@media(max-width:420px){
+  .treatment-content{padding:22px}
+  .treatment-bottom{align-items:flex-start;flex-direction:column;gap:14px}
+  .treatment-bottom .btn{width:100%;text-align:center}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
 </style></head><body><header><div class="wrap"><a class="logo" href="#inicio" style="text-decoration:none">✿ Ayelen Pedicura</a><nav><a href="#inicio">Inicio</a><a href="#servicios">Servicios</a><a href="#reservar" class="keep btn" style="color:#fff;padding:8px 16px">Reservar</a></nav></div></header>
 <main>
 <div class="page" id="p-inicio"><div class="hero"><div class="wrap"><span class="eyebrow">Pedicura &amp; Manicura</span><br><h1>Manos y pies<br>que se sienten cuidados</h1><p>Pedicura y manicura profesional, con materiales esterilizados y atención personalizada. Reservá online y abonás solo el 15 % de seña.</p><a class="btn" href="#reservar">Reservar un turno</a> <a class="btn o" href="#servicios">Ver servicios</a></div></div>
+<section class="featured-treatment"><div class="wrap"><article class="treatment-card"><div class="treatment-art"><img src="/img/tratamiento-antimicotico.svg" alt="Ilustración estilizada de una uña en tonos nude"></div><div class="treatment-content"><span class="treatment-badge">Servicio destacado</span><h2>Tratamiento Antimicótico</h2><p class="treatment-lead">Una opción de cuidado para uñas con cambios que podrían tener distintas causas, incluidas infecciones por hongos.</p><p class="treatment-care">Para confirmar un diagnóstico y determinar el tratamiento adecuado, consultá con un profesional de la salud. Este servicio no reemplaza esa consulta.</p><div class="treatment-bottom"><div class="treatment-price"><span>Precio de prueba · 1 dedo</span><strong id="treatment-price">$25.000</strong><small class="note">+$2.500 por cada dedo adicional. Valores de prueba.</small></div><label class="treatment-quantity" for="treatment-qty">Dedos a tratar<select id="treatment-qty"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select></label><a class="btn" id="treatment-book" href="#reservar">Reservar tratamiento</a></div></div></article></div></section>
 <section><div class="wrap"><h2>Nuestro trabajo</h2><p class="sub">Un vistazo a lo que hacemos.</p><div class="gal" id="gal"></div></div></section>
 <section><div class="wrap"><h2>Por qué elegirnos</h2><p class="sub"></p><div class="ben"><div><b>Higiene total</b><br><span class="note">Instrumental esterilizado</span></div><div><b>Atención personalizada</b><br><span class="note">Un turno, una persona</span></div><div><b>Reserva simple</b><br><span class="note">Elegí día y hora desde el celu</span></div><div><b>Productos de calidad</b><br><span class="note">Cuidado real para uñas y piel</span></div></div></div></section>
-<section><div class="wrap"><h2>Lo que dicen</h2><p class="sub">Testimonios de ejemplo.</p><div class="grid"><div class="card testi">“Impecable y súper prolija. Salí feliz.”</div><div class="card testi">“Reservé en un minuto y me atendieron puntual.”</div></div></div></section>
-<section><div class="wrap"><h2>Ubicación y horarios</h2><p class="sub">Ciudad del Libertador General San Martín, Buenos Aires.</p><div class="box">Lunes a sábados de 9:00 a 19:00 · Domingos cerrado<br><span class="note">Dirección exacta: completar.</span></div></div></section></div>
+<section><div class="wrap"><h2>Reseñas</h2><p class="sub">Próximamente compartiremos opiniones reales de clientas.</p></div></section>
+<section><div class="wrap"><h2>Ubicación y horarios</h2><p class="sub">Villa Libertad, San Martín, Buenos Aires.</p><div class="box">Lunes a sábados de 9:00 a 18:00 · Domingos cerrado<br><span class="note">Dirección exacta: completar.</span></div></div></section></div>
 <div class="page" id="p-servicios"><section><div class="wrap"><h2>Servicios</h2><p class="sub">Precios y duraciones de ejemplo.</p><div class="tabs"><button class="tab on" data-c="Pedicura">Pedicura</button><button class="tab" data-c="Manicura">Manicura</button></div><div class="grid" id="cat"></div></div></section></div>
 <div class="page" id="p-reservar"><section><div class="wrap"><h2>Reservá tu turno</h2><p class="sub">Elegí servicios, día y horario. La seña es del 15 %.</p><div class="warn" id="dbw" hidden></div>
-<div class="box"><div class="step"><b>1. Servicios</b><div class="tabs"><button class="tab on" data-r="Pedicura">Pedicura</button><button class="tab" data-r="Manicura">Manicura</button></div><div id="svcs"></div></div>
+<div class="box"><div class="step"><b>1. Servicios</b><div class="tabs"><button class="tab on" data-r="Pedicura">Pedicura</button><button class="tab" data-r="Manicura">Manicura</button></div><div id="svcs"></div><div id="treatment-quantity-booking"></div></div>
 <div class="step"><b>2. Día</b><div class="mh"><button class="chip" id="pm">‹</button><span id="mt"></span><button class="chip" id="nm2">›</button></div><div class="cal" id="cal"></div></div>
 <div class="step"><b>3. Horario</b><div id="slots"><span class="note">Elegí servicios y día.</span></div></div>
 <div class="step"><b>4. Tus datos</b><input id="nm" placeholder="Nombre y apellido"><input id="tel" type="tel" placeholder="Teléfono"><input id="em" type="email" placeholder="Correo (opcional)"><textarea id="ob" rows="2" placeholder="Observaciones (opcional)"></textarea></div>
@@ -80,13 +175,14 @@ h2:after{content:"";display:block;width:48px;height:3px;background:var(--pk);bor
 <footer><div class="wrap">© Ayelen Pedicura · <a href="https://wa.me/5491136009440">+54 9 11 3600-9440</a><br>Podés reprogramar con 24 h de anticipación. La seña no es reembolsable salvo cancelación del local.</div></footer>
 <a class="wa" id="wafab" href="#" target="_blank" rel="noopener">WhatsApp</a>
 <script>
-const CFG={wa:'5491136009440',pct:15,open:9,close:19,step:30,closedDays:[0],
+const CFG={wa:'5491136009440',pct:15,open:9,close:19,step:30,closedDays:[0],antimicoticoExtra:2500,
  bank:{alias:'COMPLETAR.ALIAS',cbu:'COMPLETAR CBU',titular:'Ayelen (completar)',banco:'COMPLETAR'}};
 const SERVICIOS=[
 {id:'p1',cat:'Pedicura',n:'Pedicura tradicional',d:'Higiene, corte, limado y cuidado de cutículas.',p:18000,m:60},
 {id:'p2',cat:'Pedicura',n:'Pedicura con semipermanente',d:'Pedicura completa con esmaltado semipermanente.',p:24000,m:90},
 {id:'p3',cat:'Pedicura',n:'Pedicura spa',d:'Exfoliación, hidratación profunda y masaje relajante.',p:26000,m:90},
 {id:'p4',cat:'Pedicura',n:'Tratamiento de durezas',d:'Eliminación de callosidades y suavizado de talones.',p:15000,m:45},
+{id:'p5',cat:'Pedicura',n:'Tratamiento Antimicótico',d:'Cuidado de uñas con posibles signos compatibles con hongos. Consultá con un profesional de la salud para confirmar el diagnóstico y definir el tratamiento adecuado.',p:25000,m:60},
 {id:'m1',cat:'Manicura',n:'Manicura tradicional',d:'Limado, cutículas e hidratación con esmaltado.',p:14000,m:45},
 {id:'m2',cat:'Manicura',n:'Manicura semipermanente',d:'Manicura completa con semipermanente de larga duración.',p:20000,m:75},
 {id:'m3',cat:'Manicura',n:'Soft gel / Kapping gel',d:'Refuerzo y extensión natural de uñas.',p:28000,m:120},
@@ -102,24 +198,29 @@ $('#wafab').href=waLink('¡Hola! Quisiera consultar por un turno en Ayelen Pedic
 function route(){const h=(location.hash.slice(1)||'inicio');const k=['inicio','servicios','reservar','admin'].includes(h)?h:'inicio';$$('.page').forEach(p=>p.classList.toggle('on',p.id==='p-'+k));$$('nav a').forEach(a=>a.classList.toggle('act',a.getAttribute('href')==='#'+k&&!a.classList.contains('btn')));scrollTo(0,0)}
 addEventListener('hashchange',route);
 // ===== catálogo =====
-let curC='Pedicura';const renderCat=c=>{curC=c;$('#cat').innerHTML=SERVICIOS.filter(s=>s.cat===c).map(s=>`<div class="card reveal">${ph(s.id,s.cat)}<h3>${s.n}</h3><p>${s.d}</p><div class="meta"><span>${money(s.p)}</span><span>${s.m} min</span></div><a class="btn o" href="#reservar" data-pick="${s.id}">Reservar este servicio</a> <a class="note" target="_blank" rel="noopener" href="${waLink('¡Hola! Quisiera consultar por: '+s.n)}">Consultar</a></div>`).join('')};
+let curC='Pedicura';const renderCat=c=>{curC=c;$('#cat').innerHTML=SERVICIOS.filter(s=>s.cat===c).map(s=>`<div class="card reveal">${ph(s.id,s.cat)}<h3>${s.n}</h3><p>${s.d}</p><div class="meta"><span>${s.id==='p5'?'Desde ':''}${money(s.p)}</span><span>${s.m} min</span></div><a class="btn o" href="#reservar" data-pick="${s.id}">Reservar este servicio</a> <a class="note" target="_blank" rel="noopener" href="${waLink('¡Hola! Quisiera consultar por: '+s.n)}">Consultar</a></div>`).join('')};
 $$('.tab[data-c]').forEach(b=>b.onclick=()=>{$$('.tab[data-c]').forEach(x=>x.classList.toggle('on',x===b));renderCat(b.dataset.c)});
-$('#cat').onclick=e=>{const id=e.target.dataset.pick;if(!id)return;const s=SERVICIOS.find(x=>x.id===id);st.cat=s.cat;st.sel=new Set([id]);st.time=null;$$('.tab[data-r]').forEach(x=>x.classList.toggle('on',x.dataset.r===s.cat));draw()};
+$('#cat').onclick=e=>{const id=e.target.dataset.pick;if(!id)return;const s=SERVICIOS.find(x=>x.id===id);st.cat=s.cat;st.sel=new Set([id]);if(id==='p5'){st.treatmentQuantity=Number($('#treatment-qty').value)}else st.treatmentQuantity=1;st.time=null;$$('.tab[data-r]').forEach(x=>x.classList.toggle('on',x.dataset.r===s.cat));draw()};
 // ===== base de datos (colecciones: slots = ocupación sin datos personales, turnos = reservas completas) =====
 let IMG={},db=null,SL={},TURNOS=[],canAdmin=false,canWrite=false;
 const taken=id=>{const s=SL[id];return s&&(!s.exp||s.exp>Date.now())};
-const st={cat:'Pedicura',sel:new Set(),date:null,time:null,pay:'mp',y:new Date().getFullYear(),m:new Date().getMonth()};
-const total=()=>[...st.sel].reduce((a,i)=>a+SERVICIOS.find(s=>s.id===i).p,0),dur=()=>[...st.sel].reduce((a,i)=>a+SERVICIOS.find(s=>s.id===i).m,0),seña=()=>Math.round(total()*CFG.pct/100);
+const st={cat:'Pedicura',sel:new Set(),date:null,time:null,pay:'mp',treatmentQuantity:1,y:new Date().getFullYear(),m:new Date().getMonth()};
+const treatmentTotal=q=>{const s=SERVICIOS.find(x=>x.id==='p5');return (s?.p??25000)+(q-1)*CFG.antimicoticoExtra};
+const total=()=>[...st.sel].reduce((a,i)=>{const s=SERVICIOS.find(x=>x.id===i);return a+(i==='p5'?treatmentTotal(st.treatmentQuantity):s.p)},0),dur=()=>[...st.sel].reduce((a,i)=>a+SERVICIOS.find(s=>s.id===i).m,0),seña=()=>Math.round(total()*CFG.pct/100);
+const renderTreatmentPrice=()=>{$('#treatment-price').textContent=money(treatmentTotal(Number($('#treatment-qty').value)))};
+$('#treatment-qty').onchange=()=>{st.treatmentQuantity=Number($('#treatment-qty').value);renderTreatmentPrice()};
+$('#treatment-book').onclick=()=>{if(!SERVICIOS.some(s=>s.id==='p5')){const warning=$('#dbw');warning.hidden=false;warning.textContent='El tratamiento aún no está habilitado en la base de datos de reservas.';return}st.cat='Pedicura';st.sel=new Set(['p5']);st.treatmentQuantity=Number($('#treatment-qty').value);st.time=null;$$('.tab[data-r]').forEach(x=>x.classList.toggle('on',x.dataset.r==='Pedicura'));draw();if(st.date)loadAV()};
 const blocks=(date,start,d)=>{const r=[];for(let m=start;m<start+d;m+=CFG.step)r.push(date+'_'+hhmm(m));return r};
 let AV=null;const fits=(date,start,d)=>!!AV&&AV.includes(hhmm(start));
 function loadAV(){AV=null;if(!st.date||!st.sel.size)return draw();fetch(`/api/availability?date=${st.date}&minutes=${dur()}`).then(r=>r.json()).then(j=>{AV=j.slots||[];draw()})}
-fetch('/api/config').then(r=>r.json()).then(c=>{CFG.wa=c.whatsapp;CFG.pct=+c.deposit_pct;CFG.open=+c.open;CFG.close=+c.close;CFG.step=+c.step;CFG.closedDays=c.closed_days.split(',').map(Number);CFG.bank=c.bank;
+fetch('/api/config').then(r=>r.json()).then(c=>{CFG.wa=c.whatsapp;CFG.pct=+c.deposit_pct;CFG.open=+c.open;CFG.close=+c.close;CFG.step=+c.step;CFG.closedDays=c.closed_days.split(',').map(Number);CFG.bank=c.bank;if(c.antimicotico_extra_price!==undefined)CFG.antimicoticoExtra=+c.antimicotico_extra_price;
  SERVICIOS.length=0;c.services.forEach(x=>SERVICIOS.push({id:x.id,cat:x.category,n:x.name,d:x.description,p:x.price,m:x.minutes}));
- $('#wafab').href=waLink('¡Hola! Quisiera consultar por un turno en Ayelen Pedicura.');renderCat(curC);draw();
+ $('#wafab').href=waLink('¡Hola! Quisiera consultar por un turno en Ayelen Pedicura.');renderTreatmentPrice();renderCat(curC);draw();
  [...SERVICIOS.map(x=>x.id),'g1','g2','g3','g4'].forEach(k=>{const i=new Image();i.onload=()=>{IMG[k]='/img/'+k+'.jpg';renderCat(curC);renderGal()};i.src='/img/'+k+'.jpg'})});
 // ===== reserva =====
 function draw(){
  $('#svcs').innerHTML=SERVICIOS.filter(s=>s.cat===st.cat).map(s=>`<button class="chip ${st.sel.has(s.id)?'on':''}" data-s="${s.id}">${s.n} · ${money(s.p)}</button>`).join('');
+ $('#treatment-quantity-booking').innerHTML=st.sel.has('p5')?`<label class="treatment-quantity">Cantidad de dedos<select data-treatment-quantity>${Array.from({length:10},(_,i)=>`<option value="${i+1}" ${st.treatmentQuantity===i+1?'selected':''}>${i+1}</option>`).join('')}</select></label>`:'';
  const f=new Date(st.y,st.m,1),dm=new Date(st.y,st.m+1,0).getDate(),off=(f.getDay()+6)%7,today=iso(new Date()),max=new Date();max.setMonth(max.getMonth()+3);
  $('#mt').textContent=f.toLocaleDateString('es-AR',{month:'long',year:'numeric'});
  let h='LMMJVSD'.split('').map(x=>`<b>${x}</b>`).join('')+'<span></span>'.repeat(off);
@@ -133,11 +234,12 @@ function draw(){
 const check=()=>{$('#go').disabled=!(st.sel.size&&st.date&&st.time&&$('#nm').value.trim().length>2&&$('#tel').value.replace(/\D/g,'').length>=8)};
 document.addEventListener('input',e=>{if(e.target.closest('#p-reservar'))check()});
 $('#pm').onclick=()=>{const d=new Date(st.y,st.m-1,1);st.y=d.getFullYear();st.m=d.getMonth();draw()};$('#nm2').onclick=()=>{const d=new Date(st.y,st.m+1,1);st.y=d.getFullYear();st.m=d.getMonth();draw()};
+$('#p-reservar').onchange=e=>{if(e.target.matches('[data-treatment-quantity]')){st.treatmentQuantity=Number(e.target.value);draw()}};
 $('#p-reservar').onclick=e=>{const c=e.target.closest('[data-s],[data-d],[data-t],[data-p],[data-r]');if(!c)return;const D=c.dataset;
  if(D.r){st.cat=D.r;st.sel=new Set();st.time=null;$$('.tab[data-r]').forEach(x=>x.classList.toggle('on',x===c))}
  if(D.s){st.sel.has(D.s)?st.sel.delete(D.s):st.sel.add(D.s);st.time=null}if(D.d){st.date=D.d;st.time=null}if(D.t)st.time=D.t;if(D.p)st.pay=D.p;draw();if(D.s||D.d||D.r)loadAV()};
 $('#go').onclick=async()=>{const btn=$('#go');btn.disabled=true;
- const T={name:$('#nm').value.trim(),phone:$('#tel').value.trim(),email:$('#em').value.trim(),notes:$('#ob').value.trim(),date:st.date,time:st.time,serviceIds:[...st.sel],payMethod:st.pay},names=[...st.sel].map(i=>SERVICIOS.find(s=>s.id===i).n).join(', ');
+ const T={name:$('#nm').value.trim(),phone:$('#tel').value.trim(),email:$('#em').value.trim(),notes:$('#ob').value.trim(),date:st.date,time:st.time,serviceIds:[...st.sel],treatmentQuantity:st.treatmentQuantity,payMethod:st.pay},names=[...st.sel].map(i=>{const s=SERVICIOS.find(x=>x.id===i);return i==='p5'?`${s.n} (${st.treatmentQuantity} ${st.treatmentQuantity===1?'dedo':'dedos'})`:s.n}).join(', ');
  const r=await fetch('/api/bookings',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(T)}),j=await r.json();
  if(!r.ok){alert(j.error||'No se pudo reservar');st.time=null;return loadAV()}
  if(j.init_point){location.href=j.init_point;return}
@@ -147,7 +249,7 @@ $('#go').onclick=async()=>{const btn=$('#go');btn.disabled=true;
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 
-function ph(k,cat,label){const u=IMG[k];return `<div class="ph ${cat==='Manicura'?'m':'p'} ${u?'has':''}">${u?`<img src="${esc(u)}" alt="${esc(label||'')}" loading="lazy">`:`<span><span class="ic">${cat==='Manicura'?'💅':'🦶'}</span><small>Tu foto aquí</small></span>`}${label?`<span class="lb">${label}</span>`:''}${canAdmin?`<button class="chg" data-up="${k}">Cambiar foto</button>`:''}</div>`}
+function ph(k,cat,label){const u=IMG[k]||(k==='p5'?'/img/tratamiento-antimicotico.svg':null);return `<div class="ph ${cat==='Manicura'?'m':'p'} ${u?'has':''}">${u?`<img src="${esc(u)}" alt="${esc(label||(k==='p5'?'Tratamiento Antimicótico':''))}" loading="lazy">`:`<span><span class="ic">${cat==='Manicura'?'💅':'🦶'}</span><small>Tu foto aquí</small></span>`}${label?`<span class="lb">${label}</span>`:''}${canAdmin?`<button class="chg" data-up="${k}">Cambiar foto</button>`:''}</div>`}
 function renderGal(){$('#gal').innerHTML=[['g1','Manicura','Manicura'],['g2','Pedicura','Pedicura'],['g3','Nail art','Manicura'],['g4','Spa','Pedicura']].map(a=>ph(a[0],a[2],a[1])).join('')}
 
 renderCat('Pedicura');renderGal();draw();route();

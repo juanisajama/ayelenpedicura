@@ -1,5 +1,23 @@
 <!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Admin – Ayelen Pedicura</title>
-<style>body{font:15px system-ui;margin:0;padding:20px;background:#fff8fa;color:#241820}table{border-collapse:collapse;width:100%;font-size:13px}td,th{padding:8px;border-bottom:1px solid #f1d9e2;text-align:left;vertical-align:top}button,input{padding:8px 12px;border-radius:10px;border:1px solid #d6336c;font:inherit}button{background:#d6336c;color:#fff;cursor:pointer}.w{overflow-x:auto}</style></head><body>
+<style>
+*{box-sizing:border-box}
+body{font:15px/1.55 Inter,system-ui,sans-serif;margin:0;padding:clamp(16px,4vw,36px);background:#fbf7f3;color:#302521}
+h2{font:500 30px/1.2 'Playfair Display',Georgia,serif;color:#302521;margin:0 0 22px}
+input,button{padding:10px 14px;border-radius:12px;border:1px solid #e9d9d2;font:inherit}
+input{background:#fffdfa;color:#302521}
+button{background:linear-gradient(135deg,#985064,#b86e7c);color:#fff;font-weight:600;cursor:pointer;transition:transform .2s,box-shadow .2s}
+button:hover{transform:translateY(-1px);box-shadow:0 6px 16px -8px #985064a6}
+input:focus{outline:none;border-color:#a95569;box-shadow:0 0 0 3px #a955691c}
+#lg{margin-bottom:20px}
+.w{overflow-x:auto;background:#fffdfa;border:1px solid #e9d9d2;border-radius:18px;box-shadow:0 16px 38px -30px #60453c70}
+table{border-collapse:collapse;width:100%;font-size:13px}
+td,th{padding:12px;border-bottom:1px solid #eee3de;text-align:left;vertical-align:top}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#81716b;background:#faf5f1}
+tr:last-child td{border-bottom:0}
+a{color:#985064}
+:focus-visible{outline:3px solid #bb7880;outline-offset:3px}
+@media(max-width:600px){td,th{padding:10px 8px}#lg input{max-width:60%}}
+</style></head><body>
 <h2>Agenda · Ayelen Pedicura</h2><div id="lg"><input id="pw" type="password" placeholder="Clave"> <button id="in">Entrar</button></div><div class="w"><table id="tb"></table></div>
 <script>
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),f=(u,o)=>fetch(u,{credentials:'same-origin',headers:{'content-type':'application/json'},...o});

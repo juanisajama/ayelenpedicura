@@ -12,6 +12,8 @@ Cloudflare Pages + Functions + D1 (base de datos). Sin build: se publica tal cua
    - `ADMIN_HASH`: `node -e "console.log(require('crypto').createHash('sha256').update('SESSION_SECRET_ACA'+'TU_CLAVE').digest('hex'))"`
 6. Mercado Pago → tu integración → Webhooks → URL `https://TU-DOMINIO/api/mp/webhook`, evento "Pagos".
 7. Panel: `https://TU-DOMINIO/admin.html`. Datos bancarios, WhatsApp, % de seña y horarios: tabla `settings` (`wrangler d1 execute ayelen --remote --command "UPDATE settings SET value='20' WHERE key='deposit_pct'"`).
+   - Para agregar el Tratamiento Antimicótico a una base D1 ya creada: `wrangler d1 execute ayelen --remote --command "INSERT OR IGNORE INTO services (id,category,name,description,price,minutes,active) VALUES ('p5','Pedicura','Tratamiento Antimicótico','Cuidado de uñas con posibles signos compatibles con hongos. Consultá con un profesional de la salud para confirmar el diagnóstico y definir el tratamiento adecuado.',25000,60,1)"`.
+   - Precio de prueba por cantidad: el primer dedo usa `services.price` ($25.000) y cada adicional suma `settings.antimicotico_extra_price` ($2.500). Para una D1 ya creada: `wrangler d1 execute ayelen --remote --command "INSERT OR IGNORE INTO settings (key,value) VALUES ('antimicotico_extra_price','2500')"`; cambiá esos dos importes cuando definas los precios reales.
 8. Fotos: poné archivos en `public/img/` (ver LEEME.txt) y hacé push.
 
 ## Notas
