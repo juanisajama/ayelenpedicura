@@ -15,15 +15,122 @@ td,th{padding:12px;border-bottom:1px solid #eee3de;text-align:left;vertical-alig
 th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#81716b;background:#faf5f1}
 tr:last-child td{border-bottom:0}
 a{color:#985064}
+#agenda[hidden],#editor[hidden],#treatment-qty-row[hidden]{display:none}
+#admin-status{min-height:1.6em;margin-bottom:12px;color:#81716b}
+#editor{margin:0 0 24px;padding:20px;background:#fffdfa;border:1px solid #e9d9d2;border-radius:18px}
+#editor h3{margin:0 0 6px;font:500 22px/1.3 'Playfair Display',Georgia,serif}
+#editor p{margin:0 0 16px;color:#81716b;font-size:13px}
+#appointment-form{display:grid;gap:14px}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.field{display:grid;gap:5px;font-weight:600;font-size:13px}
+.field input,.field textarea{width:100%;min-width:0}
+#service-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px}
+.service-option{display:flex;align-items:flex-start;gap:9px;padding:10px;border:1px solid #e9d9d2;border-radius:12px;background:#fff}
+.service-option input{width:auto;margin:3px 0 0;accent-color:#985064}
+.service-option span{display:grid}
+.service-option small{color:#81716b;font-weight:400}
+#service-field{margin:0;padding:12px;border:1px solid #e9d9d2;border-radius:12px}
+#service-field legend{padding:0 5px;font-weight:600}
+#form-status{min-height:1.5em;margin:0;color:#81505b}
+#form-status.error,#admin-status.error{color:#a43f52}
+#form-actions{display:flex;flex-wrap:wrap;gap:8px}
+#cancel-edit{background:#fff;color:#985064}
+button:disabled{opacity:.55;cursor:wait;transform:none}
 :focus-visible{outline:3px solid #bb7880;outline-offset:3px}
 @media(max-width:600px){td,th{padding:10px 8px}#lg input{max-width:60%}}
 </style></head><body>
-<h2>Agenda · Ayelen Pedicura</h2><div id="lg"><input id="pw" type="password" placeholder="Clave"> <button id="in">Entrar</button></div><div class="w"><table id="tb"></table></div>
+<h2>Agenda · Ayelen Pedicura</h2>
+<div id="lg"><input id="pw" type="password" placeholder="Clave" autocomplete="current-password"> <button id="in" type="button">Entrar</button></div>
+<div id="admin-status" role="status" aria-live="polite"></div>
+<main id="agenda" hidden>
+  <section id="editor">
+    <h3 id="editor-title">Agregar turno manual</h3>
+    <p>Los turnos manuales quedan pendientes de validación, bloquean el horario y no envían un link de pago.</p>
+    <form id="appointment-form">
+      <div class="form-grid">
+        <label class="field">Nombre y apellido<input id="ap-name" required minlength="3" maxlength="80"></label>
+        <label class="field">Teléfono<input id="ap-phone" type="tel" required maxlength="30"></label>
+        <label class="field">Correo (opcional)<input id="ap-email" type="email" maxlength="100"></label>
+        <label class="field">Fecha<input id="ap-date" type="date" required></label>
+        <label class="field">Hora<input id="ap-time" type="time" step="1800" required></label>
+      </div>
+      <fieldset id="service-field"><legend>Servicios</legend><div id="service-options"></div></fieldset>
+      <label class="field" id="treatment-qty-row" hidden>Cantidad de dedos<input id="treatment-qty" type="number" min="1" max="10" value="1"></label>
+      <label class="field">Observaciones (opcional)<textarea id="ap-notes" rows="2" maxlength="300"></textarea></label>
+      <p id="form-status" role="status" aria-live="polite"></p>
+      <div id="form-actions"><button id="save-appointment" type="submit">Guardar turno</button><button id="cancel-edit" type="button" hidden>Cancelar edición</button></div>
+    </form>
+  </section>
+  <div class="w"><table id="tb"></table></div>
+</main>
 <script>
-const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),f=(u,o)=>fetch(u,{credentials:'same-origin',headers:{'content-type':'application/json'},...o});
-const hm=m=>String(m/60|0).padStart(2,'0')+':'+String(m%60).padStart(2,'0'),$$=n=>'$'+n.toLocaleString('es-AR');
-async function load(){const r=await f('/api/admin/bookings');if(!r.ok){$('#lg').hidden=false;return}$('#lg').hidden=true;const l=await r.json();
-$('#tb').innerHTML='<tr><th>Fecha</th><th>Cliente</th><th>Servicios</th><th>Seña</th><th>Estado</th><th></th></tr>'+l.map(b=>`<tr><td>${b.date}<br>${hm(b.start_min)}</td><td>${esc(b.name)}<br><a href="https://wa.me/${esc(b.phone.replace(/\D/g,''))}">${esc(b.phone)}</a></td><td>${esc(b.services)}<br>${$$(b.total)}</td><td>${$$(b.deposit)}<br>${b.pay_method==='mp'?'Mercado Pago':'Transferencia'}</td><td>${esc(b.status)}</td><td>${['Cancelado','Vencido'].includes(b.status)?'':`<button data-a="confirm" data-i="${b.id}">Confirmar pago</button> <button data-a="cancel" data-i="${b.id}">Cancelar</button>`}</td></tr>`).join('')}
-$('#in').onclick=async()=>{const r=await f('/api/admin/login',{method:'POST',body:JSON.stringify({password:$('#pw').value})});r.ok?load():alert('Clave incorrecta')};
-$('#tb').onclick=async e=>{const a=e.target.dataset.a;if(a&&confirm('¿Seguro?')){await f(`/api/admin/bookings/${e.target.dataset.i}/${a}`,{method:'POST'});load()}};load();
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),f=(u,o)=>fetch(u,{credentials:'same-origin',headers:{'content-type':'application/json'},...o});
+const hm=m=>String(m/60|0).padStart(2,'0')+':'+String(m%60).padStart(2,'0'),money=n=>'$'+Number(n||0).toLocaleString('es-AR');
+let bookings=[],services=[],editingId=null;
+function setStatus(element,message,error=false){element.textContent=message;element.classList.toggle('error',error)}
+function renderServices(selected=[]){
+ const chosen=new Set(selected);
+ $('#service-options').innerHTML=services.map(s=>`<label class="service-option"><input type="checkbox" name="serviceIds" value="${esc(s.id)}" ${chosen.has(s.id)?'checked':''}><span><b>${esc(s.name)}</b><small>${esc(s.category)} · ${money(s.price)} · ${s.minutes} min</small></span></label>`).join('')||'<span>No hay servicios activos.</span>';
+ $('#service-options').onchange=()=>{$('#treatment-qty-row').hidden=!checkedServiceIds().includes('p5')};
+ $('#treatment-qty-row').hidden=!chosen.has('p5')
+}
+function checkedServiceIds(){return $$('input[name="serviceIds"]:checked').map(input=>input.value)}
+function renderBookings(){
+ $('#tb').innerHTML='<tr><th>Fecha y hora</th><th>Cliente</th><th>Servicios</th><th>Seña</th><th>Saldo / crédito</th><th>Estado</th><th>Acciones</th></tr>'+bookings.map(b=>{
+  const balance=Number(b.balance||0),balanceText=balance<0?`Crédito ${money(-balance)}`:`Saldo ${money(balance)}`,method=b.pay_method==='mp'?'Mercado Pago':b.pay_method==='manual'?'Carga manual':'Transferencia',actions=['Cancelado','Vencido'].includes(b.status)?'':`<button data-a="edit" data-i="${esc(b.id)}">Editar</button> ${['Pendiente de pago','Pendiente de validación'].includes(b.status)?`<button data-a="confirm" data-i="${esc(b.id)}">Confirmar pago</button> `:''}<button data-a="cancel" data-i="${esc(b.id)}">Cancelar</button>`;
+  return `<tr><td>${esc(b.date)}<br>${hm(b.start_min)}</td><td>${esc(b.name)}<br><a href="https://wa.me/${esc(String(b.phone).replace(/\D/g,''))}">${esc(b.phone)}</a></td><td>${esc(b.services)}<br>Total ${money(b.total)}</td><td>${money(b.deposit)}<br>${method}</td><td>${balanceText}</td><td>${esc(b.status)}</td><td>${actions}</td></tr>`
+ }).join('')
+}
+function setFormStatus(message,error=false){setStatus($('#form-status'),message,error)}
+function resetEditor(){
+ editingId=null;$('#appointment-form').reset();$('#editor-title').textContent='Agregar turno manual';$('#save-appointment').textContent='Guardar turno';$('#cancel-edit').hidden=true;$('#treatment-qty-row').hidden=true;setFormStatus('');renderServices()
+}
+function editBooking(id){
+ const booking=bookings.find(b=>b.id===id);if(!booking)return;
+ editingId=id;$('#editor-title').textContent='Editar turno';$('#save-appointment').textContent='Guardar cambios';$('#cancel-edit').hidden=false;
+ $('#ap-name').value=booking.name;$('#ap-phone').value=booking.phone;$('#ap-email').value=booking.email||'';$('#ap-date').value=booking.date;$('#ap-time').value=hm(booking.start_min);$('#ap-notes').value=booking.notes||'';
+ renderServices(booking.serviceIds||[]);$('#treatment-qty').value=booking.treatmentQuantity||1;
+ setFormStatus(booking.serviceIds?.length?'':'No pude reconocer los servicios guardados; elegí los servicios para continuar.',!booking.serviceIds?.length);
+ $('#editor').scrollIntoView({behavior:'smooth',block:'start'})
+}
+async function load(successMessage=''){
+ setStatus($('#admin-status'),'Cargando agenda…');
+ try{
+  const[bookingResponse,serviceResponse]=await Promise.all([f('/api/admin/bookings'),f('/api/admin/services')]);
+  if(bookingResponse.status===401||serviceResponse.status===401){$('#lg').hidden=false;$('#agenda').hidden=true;setStatus($('#admin-status'),'Ingresá con tu clave de administrador.');return}
+  if(!bookingResponse.ok||!serviceResponse.ok)throw new Error('No se pudo cargar la agenda o los servicios.');
+  bookings=await bookingResponse.json();services=await serviceResponse.json();
+  if(!Array.isArray(bookings)||!Array.isArray(services))throw new Error('La respuesta del servidor no es válida.');
+  $('#lg').hidden=true;$('#agenda').hidden=false;
+  if(!editingId)renderServices();
+  renderBookings();setStatus($('#admin-status'),successMessage)
+ }catch(error){$('#lg').hidden=false;$('#agenda').hidden=true;setStatus($('#admin-status'),'No se pudo conectar con la agenda. Revisá que el sitio esté ejecutándose con Cloudflare Pages Functions.',true)}
+}
+$('#in').onclick=async()=>{
+ try{const response=await f('/api/admin/login',{method:'POST',body:JSON.stringify({password:$('#pw').value})}),result=await response.json();if(!response.ok){setStatus($('#admin-status'),result.error||'No se pudo iniciar sesión.',true);return}setStatus($('#admin-status'),'');await load()}
+ catch(error){setStatus($('#admin-status'),'No se pudo conectar con el panel. Revisá la conexión e intentá nuevamente.',true)}
+};
+$('#appointment-form').onsubmit=async event=>{
+ event.preventDefault();
+ const serviceIds=checkedServiceIds(),payload={name:$('#ap-name').value.trim(),phone:$('#ap-phone').value.trim(),email:$('#ap-email').value.trim(),date:$('#ap-date').value,time:$('#ap-time').value,notes:$('#ap-notes').value.trim(),serviceIds,treatmentQuantity:Number($('#treatment-qty').value)};
+ if(!serviceIds.length){setFormStatus('Elegí al menos un servicio.',true);return}
+ const button=$('#save-appointment');button.disabled=true;setFormStatus(editingId?'Guardando cambios…':'Guardando turno…');
+ try{
+  const response=await f(editingId?`/api/admin/bookings/${encodeURIComponent(editingId)}/edit`:'/api/admin/bookings',{method:'POST',body:JSON.stringify(payload)}),result=await response.json();
+  if(!response.ok)throw new Error(result.error||'No se pudo guardar el turno.');
+  const successMessage=editingId?'Turno actualizado.':'Turno guardado.';resetEditor();await load(successMessage)
+ }catch(error){setFormStatus(error.message||'No se pudo guardar el turno. Revisá los datos e intentá nuevamente.',true)}
+ finally{button.disabled=false}
+};
+$('#cancel-edit').onclick=resetEditor;
+$('#tb').onclick=async event=>{
+ const button=event.target.closest('button[data-a]');if(!button)return;
+ const action=button.dataset.a,id=button.dataset.i;
+ if(action==='edit'){editBooking(id);return}
+ if(!confirm(action==='cancel'?'¿Cancelar este turno?':'¿Confirmar que el pago fue recibido?'))return;
+ try{const response=await f(`/api/admin/bookings/${encodeURIComponent(id)}/${action}`,{method:'POST'}),result=await response.json();if(!response.ok)throw new Error(result.error||'No se pudo actualizar el turno.');await load(action==='cancel'?'Turno cancelado.':'Pago confirmado.')}
+ catch(error){setStatus($('#admin-status'),error.message||'No se pudo actualizar el turno.',true)}
+};
+$('#pw').onkeydown=event=>{if(event.key==='Enter')$('#in').click()};
+load();
 </script></body></html>

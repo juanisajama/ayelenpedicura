@@ -12,9 +12,13 @@ Cloudflare Pages + Functions + D1 (base de datos). Sin build: se publica tal cua
    - `ADMIN_HASH`: `node -e "console.log(require('crypto').createHash('sha256').update('SESSION_SECRET_ACA'+'TU_CLAVE').digest('hex'))"`
 6. Mercado Pago → tu integración → Webhooks → URL `https://TU-DOMINIO/api/mp/webhook`, evento "Pagos".
 7. Panel: `https://TU-DOMINIO/admin.html`. Datos bancarios, WhatsApp, % de seña y horarios: tabla `settings` (`wrangler d1 execute ayelen --remote --command "UPDATE settings SET value='20' WHERE key='deposit_pct'"`).
+   - Desde el panel podés cargar y editar turnos. Los nuevos quedan como “Pendiente de validación”; al editar un turno con seña pagada se conserva ese importe y se recalcula el saldo/crédito.
    - Para agregar el Tratamiento Antimicótico a una base D1 ya creada: `wrangler d1 execute ayelen --remote --command "INSERT OR IGNORE INTO services (id,category,name,description,price,minutes,active) VALUES ('p5','Pedicura','Tratamiento Antimicótico','Cuidado de uñas con posibles signos compatibles con hongos. Consultá con un profesional de la salud para confirmar el diagnóstico y definir el tratamiento adecuado.',25000,60,1)"`.
    - Precio de prueba por cantidad: el primer dedo usa `services.price` ($25.000) y cada adicional suma `settings.antimicotico_extra_price` ($2.500). Para una D1 ya creada: `wrangler d1 execute ayelen --remote --command "INSERT OR IGNORE INTO settings (key,value) VALUES ('antimicotico_extra_price','2500')"`; cambiá esos dos importes cuando definas los precios reales.
 8. Fotos: poné archivos en `public/img/` (ver LEEME.txt) y hacé push.
+
+## Vista previa local
+Un servidor estático simple no ejecuta las Pages Functions y por eso la disponibilidad y el panel no funcionan allí. Inicializá la D1 local con `npx wrangler d1 execute ayelen --local --file=schema.sql`, configurá `SESSION_SECRET` y `ADMIN_HASH` en `.dev.vars` (ver el paso 5) y ejecutá `npx wrangler pages dev`. El archivo `.dev.vars` no se sube a Git.
 
 ## Notas
 - Seguridad: la confirmación de pago solo ocurre desde el webhook, que vuelve a consultar el pago a Mercado Pago. Agregá una regla de Rate Limiting de Cloudflare a `/api/admin/login`.

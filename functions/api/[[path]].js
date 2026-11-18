@@ -6,11 +6,43 @@ const sign=async(k,m)=>hex(await crypto.subtle.sign('HMAC',await crypto.subtle.i
 const same=(a,b)=>a.length===b.length&&[...a].reduce((r,c,i)=>r|(c.charCodeAt(0)^b.charCodeAt(i)),0)===0;
 const hh=m=>String(m/60|0).padStart(2,'0')+String(m%60).padStart(2,'0');
 const clean=(s,n)=>String(s||'').trim().slice(0,n);
+function parseAppointmentStart(date,time,step){
+ if(!/^\d{4}-\d\d-\d\d$/.test(date))return null;
+ const parsedDate=new Date(date+'T12:00:00Z');
+ if(Number.isNaN(parsedDate.getTime())||parsedDate.toISOString().slice(0,10)!==date)return null;
+ const match=/^(\d{2}):(\d{2})$/.exec(time);
+ if(!match)return null;
+ const hour=Number(match[1]),minute=Number(match[2]),start=hour*60+minute;
+ return hour<24&&minute<60&&Number.isInteger(step)&&step>0&&start%step===0?start:null
+}
+function serviceSelectionFromNames(names,catalog){
+ const serviceIds=[];let treatmentQuantity=1;
+ for(const part of String(names||'').split(', ')){
+  const service=catalog.find(s=>part===s.name||(s.id==='p5'&&part.startsWith(s.name+' (')));
+  if(!service)continue;
+  serviceIds.push(service.id);
+  if(service.id==='p5'){const quantity=part.match(/\((\d+) dedos?\)$/);if(quantity)treatmentQuantity=Number(quantity[1])}
+ }
+ return{serviceIds,treatmentQuantity}
+}
+async function selectedServices(DB,ids,treatmentQuantity,c){
+ const extraPrice=Number(c.antimicotico_extra_price??2500);
+ if(ids.includes('p5')&&(!Number.isInteger(treatmentQuantity)||treatmentQuantity<1||treatmentQuantity>10||!Number.isSafeInteger(extraPrice)||extraPrice<=0))return null;
+ const rows=(await DB.prepare(`SELECT * FROM services WHERE active=1 AND id IN(${ids.map(()=>'?').join(',')})`).bind(...ids).all()).results;
+ if(rows.length!==ids.length)return null;
+ return{
+  rows,
+  total:rows.reduce((sum,row)=>sum+row.price+(row.id==='p5'?(treatmentQuantity-1)*extraPrice:0),0),
+  duration:rows.reduce((sum,row)=>sum+row.minutes,0),
+  names:rows.map(row=>row.id==='p5'?`${row.name} (${treatmentQuantity} ${treatmentQuantity===1?'dedo':'dedos'})`:row.name).join(', ')
+ }
+}
 async function settings(DB){return Object.fromEntries((await DB.prepare('SELECT key,value FROM settings').all()).results.map(r=>[r.key,r.value]))}
 async function cleanup(DB){const t=Date.now();await DB.batch([DB.prepare("DELETE FROM slots WHERE booking_id IN(SELECT id FROM bookings WHERE status IN('Pendiente de pago','Pendiente de validación') AND expires_at<?)").bind(t),DB.prepare("UPDATE bookings SET status='Vencido' WHERE status IN('Pendiente de pago','Pendiente de validación') AND expires_at<?").bind(t)])}
-async function avail(DB,c,date,dur){const step=+c.step,open=+c.open*60,close=+c.close*60;
+async function avail(DB,c,date,dur,excludeBookingId=null){const step=+c.step,open=+c.open*60,close=+c.close*60;
  if(c.closed_days.split(',').includes(String(new Date(date+'T12:00:00Z').getUTCDay())))return[];
- const used=new Set((await DB.prepare('SELECT start_min m FROM slots WHERE date=?').bind(date).all()).results.map(r=>r.m));
+ const usedQuery=excludeBookingId?DB.prepare('SELECT start_min m FROM slots WHERE date=? AND booking_id<>?').bind(date,excludeBookingId):DB.prepare('SELECT start_min m FROM slots WHERE date=?').bind(date);
+ const used=new Set((await usedQuery.all()).results.map(r=>r.m));
  (await DB.prepare('SELECT start_min a,end_min b FROM blocks WHERE date=?').bind(date).all()).results.forEach(b=>{for(let m=b.a;m<b.b;m+=step)used.add(m)});
  const n=new Date(Date.now()-10800000),today=n.toISOString().slice(0,10),nm=n.getUTCHours()*60+n.getUTCMinutes(),out=[];
  if(date<today)return[];
@@ -55,8 +87,43 @@ export async function onRequest({request:req,env,params}){
   if(!same(h,env.ADMIN_HASH||'x'))return J({error:'Clave incorrecta'},401);const e=Date.now()+12*3600e3;
   return J({ok:true},200,{'set-cookie':`s=${e}.${await sign(env.SESSION_SECRET,String(e))}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=43200`})}
  if(p.startsWith('admin/')){if(!(await admin(req,env)))return J({error:'No autorizado'},401);
-  if(p==='admin/bookings'&&M==='GET'){await cleanup(DB);return J((await DB.prepare('SELECT * FROM bookings ORDER BY date DESC,start_min DESC LIMIT 300').all()).results)}
-  const m=p.match(/^admin\/bookings\/([\w-]+)\/(confirm|cancel)$/);
-  if(m&&M==='POST'){if(m[2]==='confirm')await DB.prepare("UPDATE bookings SET status='Confirmado',pay_status='approved',expires_at=NULL WHERE id=? AND status IN('Pendiente de validación','Pendiente de pago')").bind(m[1]).run();
-   else{await free(DB,m[1]);await DB.prepare("UPDATE bookings SET status='Cancelado' WHERE id=?").bind(m[1]).run()}return J({ok:true})}}
+  if(p==='admin/services'&&M==='GET')return J((await DB.prepare("SELECT id,category,name,price,minutes FROM services WHERE active=1 ORDER BY category,name").all()).results);
+  if(p==='admin/bookings'&&M==='GET'){
+   await cleanup(DB);
+   const[catalog,rows]=await Promise.all([DB.prepare('SELECT id,name FROM services').all(),DB.prepare('SELECT * FROM bookings ORDER BY date DESC,start_min DESC LIMIT 300').all()]);
+   return J(rows.results.map(b=>({...b,...serviceSelectionFromNames(b.services,catalog.results)})))
+  }
+  if(p==='admin/bookings'&&M==='POST'){
+   await cleanup(DB);const b=await req.json(),c=await settings(DB),name=clean(b.name,80),phone=clean(b.phone,30),date=clean(b.date,10),time=clean(b.time,5),ids=Array.isArray(b.serviceIds)?[...new Set(b.serviceIds.filter(id=>typeof id==='string'))].slice(0,10):[],quantity=ids.includes('p5')?Number(b.treatmentQuantity??1):1,step=+c.step,start=parseAppointmentStart(date,time,step);
+   if(name.length<3||phone.replace(/\D/g,'').length<8||!ids.length||start===null)return J({error:'Completá nombre, teléfono, servicios, fecha y horario válidos'},400);
+   const selected=await selectedServices(DB,ids,quantity,c);if(!selected)return J({error:'Servicio o cantidad inválidos'},400);
+   if(!(await avail(DB,c,date,selected.duration)).includes(start))return J({error:'Ese horario ya no está disponible'},409);
+   const pct=+c.deposit_pct,deposit=Math.round(selected.total*pct/100),id=crypto.randomUUID(),now=Date.now();
+   const q=[DB.prepare("INSERT INTO bookings(id,name,phone,email,notes,date,start_min,duration,services,total,deposit_pct,deposit,balance,pay_method,pay_status,status,mp_payment_id,expires_at,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)").bind(id,name,phone,clean(b.email,100),clean(b.notes,300),date,start,selected.duration,selected.names,selected.total,pct,deposit,selected.total-deposit,'manual','pending','Pendiente de validación',null,null,now)];
+   for(let x=start;x<start+selected.duration;x+=step)q.push(DB.prepare('INSERT INTO slots(date,start_min,booking_id) VALUES(?,?,?)').bind(date,x,id));
+   try{await DB.batch(q)}catch(error){if(String(error.message).includes('UNIQUE constraint failed: slots.date, slots.start_min'))return J({error:'Ese horario se acaba de ocupar'},409);throw error}
+   return J({id,status:'Pendiente de validación',deposit,total:selected.total},201)
+  }
+  const m=p.match(/^admin\/bookings\/([\w-]+)\/(edit|confirm|cancel)$/);
+  if(m&&M==='POST'){
+   if(m[2]==='confirm')await DB.prepare("UPDATE bookings SET status='Confirmado',pay_status='approved',expires_at=NULL WHERE id=? AND status IN('Pendiente de validación','Pendiente de pago')").bind(m[1]).run();
+   else if(m[2]==='cancel'){await free(DB,m[1]);await DB.prepare("UPDATE bookings SET status='Cancelado' WHERE id=?").bind(m[1]).run()}
+   else{
+    const b=await req.json(),c=await settings(DB),booking=await DB.prepare('SELECT * FROM bookings WHERE id=?').bind(m[1]).first();
+    if(!booking)return J({error:'No se encontró el turno'},404);
+    if(['Cancelado','Vencido'].includes(booking.status))return J({error:'No se puede editar un turno cancelado o vencido'},409);
+    const name=clean(b.name,80),phone=clean(b.phone,30),date=clean(b.date,10),time=clean(b.time,5),ids=Array.isArray(b.serviceIds)?[...new Set(b.serviceIds.filter(id=>typeof id==='string'))].slice(0,10):[],quantity=ids.includes('p5')?Number(b.treatmentQuantity??1):1,step=+c.step,start=parseAppointmentStart(date,time,step);
+    if(name.length<3||phone.replace(/\D/g,'').length<8||!ids.length||start===null)return J({error:'Completá nombre, teléfono, servicios, fecha y horario válidos'},400);
+    const selected=await selectedServices(DB,ids,quantity,c);if(!selected)return J({error:'Servicio o cantidad inválidos'},400);
+    if(!(await avail(DB,c,date,selected.duration,m[1])).includes(start))return J({error:'Ese horario ya no está disponible'},409);
+    const depositPaid=booking.pay_status==='approved',preserveDeposit=depositPaid||booking.pay_method==='mp'||booking.status==='Pendiente de validación'&&booking.pay_method==='transfer',pct=preserveDeposit?booking.deposit_pct:+c.deposit_pct,deposit=preserveDeposit?booking.deposit:Math.round(selected.total*pct/100),balance=selected.total-deposit;
+    if(!depositPaid&&deposit>selected.total)return J({error:'El importe de seña pendiente supera el nuevo total. Cancelá el turno y cargalo nuevamente para evitar un cobro incorrecto.'},409);
+    const q=[DB.prepare('DELETE FROM slots WHERE booking_id=?').bind(m[1])];
+    for(let x=start;x<start+selected.duration;x+=step)q.push(DB.prepare('INSERT INTO slots(date,start_min,booking_id) VALUES(?,?,?)').bind(date,x,m[1]));
+    q.push(DB.prepare('UPDATE bookings SET name=?,phone=?,email=?,notes=?,date=?,start_min=?,duration=?,services=?,total=?,deposit_pct=?,deposit=?,balance=? WHERE id=?').bind(name,phone,clean(b.email,100),clean(b.notes,300),date,start,selected.duration,selected.names,selected.total,pct,deposit,balance,m[1]));
+    try{await DB.batch(q)}catch(error){if(String(error.message).includes('UNIQUE constraint failed: slots.date, slots.start_min'))return J({error:'Ese horario se acaba de ocupar'},409);throw error}
+    return J({ok:true,total:selected.total,deposit,balance})
+   }
+   return J({ok:true})
+  }}
  return J({error:'No encontrado'},404)}catch(e){return J({error:'Error del servidor'},500)}}
