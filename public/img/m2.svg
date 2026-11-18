@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480">
+  <rect width="640" height="480" fill="#edd7df"/>
+  <circle cx="320" cy="220" r="170" fill="#fff9fb"/>
+  <path d="M188 420c24-108 70-154 132-154s108 46 132 154" fill="#cfa18f"/>
+  <path d="M240 260c32-38 53-56 80-56s48 18 80 56" fill="#f4bac8" stroke="#b86e7c" stroke-width="8"/>
+  <text x="320" y="452" text-anchor="middle" fill="#985064" font-family="Arial,sans-serif" font-size="20">IMAGEN DE PRUEBA</text>
+</svg>

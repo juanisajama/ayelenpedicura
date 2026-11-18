@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480">
+  <rect width="640" height="480" fill="#f4dde5"/>
+  <circle cx="320" cy="220" r="170" fill="#fffafd"/>
+  <path d="M190 420c24-108 68-154 130-154s106 46 130 154" fill="#cfa597"/>
+  <circle cx="290" cy="242" r="28" fill="#d6336c"/>
+  <circle cx="350" cy="242" r="28" fill="#f2b3c5"/>
+  <path d="M320 204l12 25 27 4-20 19 5 27-24-13-24 13 5-27-20-19 27-4 12-25z" fill="#fff"/>
+  <text x="320" y="452" text-anchor="middle" fill="#985064" font-family="Arial,sans-serif" font-size="20">IMAGEN DE PRUEBA</text>
+</svg>

@@ -59,7 +59,6 @@ h2:after{content:"";display:block;width:48px;height:3px;background:var(--pk);bor
 .ic{font-size:40px;display:block}.ph small{color:var(--mut);font-size:12px}
 .chg{position:absolute;right:8px;bottom:8px;border:0;border-radius:99px;padding:6px 12px;background:#000a;color:#fff;font:600 12px Inter,sans-serif;cursor:pointer;z-index:2}
 .gal{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding-bottom:18px}.gal .ph{aspect-ratio:3/4;margin:0}.gal .ph:nth-child(even){transform:translateY(18px)}
-.lb{position:absolute;left:12px;bottom:10px;font:600 15px 'Playfair Display',serif;color:var(--fg);z-index:1}.ph.has .lb{color:#fff;text-shadow:0 1px 6px #000a}
 @media(max-width:700px){.gal{grid-template-columns:repeat(2,1fr)}}
 :root{--bg:#fbf7f3;--fg:#302521;--mut:#81716b;--card:#fffdfa;--pk:#a95569;--pk2:#f3e6e1;--bd:#e9d9d2}
 body{background:linear-gradient(180deg,var(--bg),#f8f2ed 65%,var(--bg))}
@@ -127,6 +126,25 @@ footer{padding-top:34px}
   .cal{gap:4px}
 }
 .featured-treatment{padding:34px 0 18px}
+.social-section{padding-top:22px}
+.social-card{display:grid;grid-template-columns:1fr minmax(0,.9fr);align-items:center;gap:32px;padding:clamp(22px,4vw,38px);border:1px solid var(--bd);border-radius:26px;background:linear-gradient(145deg,var(--card),var(--pk2));box-shadow:0 18px 42px -32px #60453c70}
+.social-copy h2{margin:4px 0 12px}
+.social-copy p{max-width:440px;margin:0;color:var(--mut)}
+.social-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.social-actions .btn{display:inline-flex;align-items:center;gap:9px}
+.social-actions svg{width:18px;height:18px;flex:none}
+.instagram-preview{display:block;overflow:hidden;border:1px solid var(--bd);border-radius:18px;background:var(--card);color:var(--fg);text-decoration:none;box-shadow:0 12px 28px -24px #60453c80;transition:transform .2s,box-shadow .2s}
+.instagram-preview:hover{transform:translateY(-3px);box-shadow:0 16px 32px -22px #60453c80}
+.instagram-head{display:flex;align-items:center;gap:10px;padding:14px}
+.instagram-avatar{display:grid;width:38px;height:38px;place-items:center;border-radius:50%;background:var(--pk2);color:var(--pk);font-size:23px}
+.instagram-identity{display:grid;gap:1px;font-size:13px}
+.instagram-identity small{color:var(--mut);font-size:12px}
+.instagram-follow{margin-left:auto;color:var(--pk);font-size:12px;font-weight:600}
+.instagram-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}
+.instagram-grid img{display:block;width:100%;aspect-ratio:1;object-fit:cover}
+.instagram-caption{margin:0;padding:12px 14px;color:var(--mut);font-size:12px}
+.social-section h2:after{display:none}
+@media(max-width:700px){.social-card{grid-template-columns:1fr;gap:22px}.social-actions .btn{flex:1;justify-content:center}}
 .treatment-card{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);overflow:hidden;background:var(--card);border:1px solid var(--bd);border-radius:26px;box-shadow:0 20px 46px -34px #60453c80}
 .treatment-art{min-height:340px;background:linear-gradient(145deg,var(--pk2),var(--bg))}
 .treatment-art img{display:block;width:100%;height:100%;min-height:340px;object-fit:cover}
@@ -160,6 +178,7 @@ footer{padding-top:34px}
 <div class="page" id="p-inicio"><div class="hero"><div class="wrap"><span class="eyebrow">Pedicura &amp; Manicura</span><br><h1>Manos y pies<br>que se sienten cuidados</h1><p>Pedicura y manicura profesional, con materiales esterilizados y atención personalizada. Reservá online y abonás solo el 15 % de seña.</p><a class="btn" href="#reservar">Reservar un turno</a> <a class="btn o" href="#servicios">Ver servicios</a></div></div>
 <section class="featured-treatment"><div class="wrap"><article class="treatment-card"><div class="treatment-art"><img src="/img/tratamiento-antimicotico.svg" alt="Ilustración estilizada de una uña en tonos nude"></div><div class="treatment-content"><span class="treatment-badge">Servicio destacado</span><h2>Tratamiento Antimicótico</h2><p class="treatment-lead">Una opción de cuidado para uñas con cambios que podrían tener distintas causas, incluidas infecciones por hongos.</p><p class="treatment-care">Para confirmar un diagnóstico y determinar el tratamiento adecuado, consultá con un profesional de la salud. Este servicio no reemplaza esa consulta.</p><div class="treatment-bottom"><div class="treatment-price"><span>Precio de prueba · 1 dedo</span><strong id="treatment-price">$25.000</strong><small class="note">+$2.500 por cada dedo adicional. Valores de prueba.</small></div><label class="treatment-quantity" for="treatment-qty">Dedos a tratar<select id="treatment-qty"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select></label><a class="btn" id="treatment-book" href="#reservar">Reservar tratamiento</a></div></div></article></div></section>
 <section><div class="wrap"><h2>Nuestro trabajo</h2><p class="sub">Un vistazo a lo que hacemos.</p><div class="gal" id="gal"></div></div></section>
+<section class="social-section"><div class="wrap"><div class="social-card"><div class="social-copy"><span class="eyebrow">Seguinos y conversemos</span><h2>Un momento para vos</h2><p>Regalarte un ratito de cuidado también es una forma de quererte. Merecés sentirte bien, por dentro y por fuera. ¡Te esperamos con mucho cariño!</p><div class="social-actions"><a class="btn" href="https://www.instagram.com/Ayelen_pedicura/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r="1" fill="currentColor" stroke="none"/></svg>Instagram</a><a class="btn o" id="social-whatsapp" href="https://wa.me/5491136009440" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 11.5a8.4 8.4 0 0 1-12.4 7.4L3 20l1.2-4.4A8.4 8.4 0 1 1 20 11.5Z"/><path d="M8.5 8.5c.3 2.2 2.1 4 4.3 4.3l1.1-1.1 2 1c-.2 1.1-.9 1.8-2 2-3.3-.5-5.8-3-6.3-6.3.2-1.1.9-1.8 2-2l1 2-1.1 1.1Z"/></svg>WhatsApp</a></div></div><a class="instagram-preview" href="https://www.instagram.com/Ayelen_pedicura/" target="_blank" rel="noopener" aria-label="Vista previa del Instagram de Ayelen Pedicura. Abrir perfil"><div class="instagram-head"><span class="instagram-avatar" aria-hidden="true">✿</span><span class="instagram-identity"><b>Ayelen Pedicura</b><small>@Ayelen_pedicura</small></span><span class="instagram-follow">Ver perfil ↗</span></div><div class="instagram-grid"><img src="/img/manicura%20(1).jfif" alt="Trabajo de manicura" loading="lazy"><img src="/img/Pedicure%20Rzesz%C3%B3w%20Studio%20Paznokci.jfif" alt="Trabajo de pedicura" loading="lazy"><img src="/img/manicura%20(3).jfif" alt="Diseño de uñas" loading="lazy"></div><p class="instagram-caption">Un vistazo a nuestros trabajos · Visitá el perfil para conocernos</p></a></div></div></section>
 <section><div class="wrap"><h2>Por qué elegirnos</h2><p class="sub"></p><div class="ben"><div><b>Higiene total</b><br><span class="note">Instrumental esterilizado</span></div><div><b>Atención personalizada</b><br><span class="note">Un turno, una persona</span></div><div><b>Reserva simple</b><br><span class="note">Elegí día y hora desde el celu</span></div><div><b>Productos de calidad</b><br><span class="note">Cuidado real para uñas y piel</span></div></div></div></section>
 <section><div class="wrap"><h2>Reseñas</h2><p class="sub">Próximamente compartiremos opiniones reales de clientas.</p></div></section>
 <section><div class="wrap"><h2>Ubicación y horarios</h2><p class="sub">Villa Libertad, San Martín, Buenos Aires.</p><div class="box">Lunes a sábados de 9:00 a 18:00 · Domingos cerrado<br><span class="note">Dirección exacta: completar.</span></div></div></section></div>
@@ -194,15 +213,33 @@ const money=n=>'$'+n.toLocaleString('es-AR'),waLink=t=>`https://wa.me/${CFG.wa}?
 const mins=t=>{const[a,b]=t.split(':').map(Number);return a*60+b},hhmm=m=>String(Math.floor(m/60)).padStart(2,'0')+String(m%60).padStart(2,'0');
 const lbl=h=>h.slice(0,2)+':'+h.slice(2),iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 $('#wafab').href=waLink('¡Hola! Quisiera consultar por un turno en Ayelen Pedicura.');
+$('#social-whatsapp').href=waLink('¡Hola! Quisiera consultar por un turno en Ayelen Pedicura.');
 // ===== rutas por hash =====
 function route(){const h=(location.hash.slice(1)||'inicio');const k=['inicio','servicios','reservar','admin'].includes(h)?h:'inicio';$$('.page').forEach(p=>p.classList.toggle('on',p.id==='p-'+k));$$('nav a').forEach(a=>a.classList.toggle('act',a.getAttribute('href')==='#'+k&&!a.classList.contains('btn')));scrollTo(0,0)}
 addEventListener('hashchange',route);
 // ===== catálogo =====
-let curC='Pedicura';const renderCat=c=>{curC=c;$('#cat').innerHTML=SERVICIOS.filter(s=>s.cat===c).map(s=>`<div class="card reveal">${ph(s.id,s.cat)}<h3>${s.n}</h3><p>${s.d}</p><div class="meta"><span>${s.id==='p5'?'Desde ':''}${money(s.p)}</span><span>${s.m} min</span></div><a class="btn o" href="#reservar" data-pick="${s.id}">Reservar este servicio</a> <a class="note" target="_blank" rel="noopener" href="${waLink('¡Hola! Quisiera consultar por: '+s.n)}">Consultar</a></div>`).join('')};
+let curC='Pedicura';const renderCat=c=>{curC=c;$('#cat').innerHTML=SERVICIOS.filter(s=>s.cat===c).map(s=>`<div class="card reveal">${ph(s.id,s.cat,s.n)}<h3>${s.n}</h3><p>${s.d}</p><div class="meta"><span>${s.id==='p5'?'Desde ':''}${money(s.p)}</span><span>${s.m} min</span></div><a class="btn o" href="#reservar" data-pick="${s.id}">Reservar este servicio</a> <a class="note" target="_blank" rel="noopener" href="${waLink('¡Hola! Quisiera consultar por: '+s.n)}">Consultar</a></div>`).join('')};
 $$('.tab[data-c]').forEach(b=>b.onclick=()=>{$$('.tab[data-c]').forEach(x=>x.classList.toggle('on',x===b));renderCat(b.dataset.c)});
 $('#cat').onclick=e=>{const id=e.target.dataset.pick;if(!id)return;const s=SERVICIOS.find(x=>x.id===id);st.cat=s.cat;st.sel=new Set([id]);if(id==='p5'){st.treatmentQuantity=Number($('#treatment-qty').value)}else st.treatmentQuantity=1;st.time=null;$$('.tab[data-r]').forEach(x=>x.classList.toggle('on',x.dataset.r===s.cat));draw()};
 // ===== base de datos (colecciones: slots = ocupación sin datos personales, turnos = reservas completas) =====
 let IMG={},db=null,SL={},TURNOS=[],canAdmin=false,canWrite=false;
+const TEST_PHOTOS={
+ p1:'Pedicure Rzeszów Studio Paznokci.jfif',
+ p2:'descarga (25).jfif',
+ p3:'descarga (26).jfif',
+ p4:'SHEIN.jfif',
+ m1:'manicura (1).jfif',
+ m2:'manicura (2).jfif',
+ m3:'manicura (3).jfif',
+ m4:'manicura (1)',
+ m5:'manicura (2)',
+ g1:'Better together__Our Signature mani & pedi — bundled with intention__#MaisonLune_#LuxuryNailsPaphos_#PaphosBeauty_#ManiPediBundle_#IntentionalBeauty.jfif',
+ g2:'manicura (1).jfif',
+ g3:'manicura (2).jfif',
+ g4:'manicura (3).jfif'
+};
+const testPhotoUrl=k=>'/img/'+encodeURIComponent(TEST_PHOTOS[k]);
+Object.keys(TEST_PHOTOS).forEach(k=>{IMG[k]=testPhotoUrl(k)});
 const taken=id=>{const s=SL[id];return s&&(!s.exp||s.exp>Date.now())};
 const st={cat:'Pedicura',sel:new Set(),date:null,time:null,pay:'mp',treatmentQuantity:1,y:new Date().getFullYear(),m:new Date().getMonth()};
 const treatmentTotal=q=>{const s=SERVICIOS.find(x=>x.id==='p5');return (s?.p??25000)+(q-1)*CFG.antimicoticoExtra};
@@ -215,8 +252,21 @@ let AV=null;const fits=(date,start,d)=>!!AV&&AV.includes(hhmm(start));
 function loadAV(){AV=null;if(!st.date||!st.sel.size)return draw();fetch(`/api/availability?date=${st.date}&minutes=${dur()}`).then(r=>r.json()).then(j=>{AV=j.slots||[];draw()})}
 fetch('/api/config').then(r=>r.json()).then(c=>{CFG.wa=c.whatsapp;CFG.pct=+c.deposit_pct;CFG.open=+c.open;CFG.close=+c.close;CFG.step=+c.step;CFG.closedDays=c.closed_days.split(',').map(Number);CFG.bank=c.bank;if(c.antimicotico_extra_price!==undefined)CFG.antimicoticoExtra=+c.antimicotico_extra_price;
  SERVICIOS.length=0;c.services.forEach(x=>SERVICIOS.push({id:x.id,cat:x.category,n:x.name,d:x.description,p:x.price,m:x.minutes}));
- $('#wafab').href=waLink('¡Hola! Quisiera consultar por un turno en Ayelen Pedicura.');renderTreatmentPrice();renderCat(curC);draw();
- [...SERVICIOS.map(x=>x.id),'g1','g2','g3','g4'].forEach(k=>{const i=new Image();i.onload=()=>{IMG[k]='/img/'+k+'.jpg';renderCat(curC);renderGal()};i.src='/img/'+k+'.jpg'})});
+ $('#wafab').href=waLink('¡Hola! Quisiera consultar por un turno en Ayelen Pedicura.');$('#social-whatsapp').href=waLink('¡Hola! Quisiera consultar por un turno en Ayelen Pedicura.');renderTreatmentPrice();renderCat(curC);draw();
+ [...SERVICIOS.map(x=>x.id),'g1','g2','g3','g4'].forEach(k=>{
+  const loadSvg=()=>{const svg=new Image();svg.onload=()=>{IMG[k]='/img/'+k+'.svg';renderCat(curC);renderGal()};svg.src='/img/'+k+'.svg'};
+  const jpg=new Image();
+  jpg.onload=()=>{IMG[k]='/img/'+k+'.jpg';renderCat(curC);renderGal()};
+  jpg.onerror=()=>{
+   if(!TEST_PHOTOS[k])return loadSvg();
+   const photo=new Image();
+   photo.onload=()=>{IMG[k]=testPhotoUrl(k);renderCat(curC);renderGal()};
+   photo.onerror=loadSvg;
+   photo.src=testPhotoUrl(k)
+  };
+  jpg.src='/img/'+k+'.jpg'
+ });
+});
 // ===== reserva =====
 function draw(){
  $('#svcs').innerHTML=SERVICIOS.filter(s=>s.cat===st.cat).map(s=>`<button class="chip ${st.sel.has(s.id)?'on':''}" data-s="${s.id}">${s.n} · ${money(s.p)}</button>`).join('');
@@ -249,8 +299,8 @@ $('#go').onclick=async()=>{const btn=$('#go');btn.disabled=true;
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 
-function ph(k,cat,label){const u=IMG[k]||(k==='p5'?'/img/tratamiento-antimicotico.svg':null);return `<div class="ph ${cat==='Manicura'?'m':'p'} ${u?'has':''}">${u?`<img src="${esc(u)}" alt="${esc(label||(k==='p5'?'Tratamiento Antimicótico':''))}" loading="lazy">`:`<span><span class="ic">${cat==='Manicura'?'💅':'🦶'}</span><small>Tu foto aquí</small></span>`}${label?`<span class="lb">${label}</span>`:''}${canAdmin?`<button class="chg" data-up="${k}">Cambiar foto</button>`:''}</div>`}
-function renderGal(){$('#gal').innerHTML=[['g1','Manicura','Manicura'],['g2','Pedicura','Pedicura'],['g3','Nail art','Manicura'],['g4','Spa','Pedicura']].map(a=>ph(a[0],a[2],a[1])).join('')}
+function ph(k,cat,label){const u=IMG[k]||(k==='p5'?'/img/tratamiento-antimicotico.svg':null);return `<div class="ph ${cat==='Manicura'?'m':'p'} ${u?'has':''}">${u?`<img src="${esc(u)}" alt="${esc(label||(k==='p5'?'Tratamiento Antimicótico':''))}" loading="lazy">`:`<span><span class="ic">${cat==='Manicura'?'💅':'🦶'}</span><small>Tu foto aquí</small></span>`}${canAdmin?`<button class="chg" data-up="${k}">Cambiar foto</button>`:''}</div>`}
+function renderGal(){$('#gal').innerHTML=[['g1','Manicura y pedicura','Manicura'],['g2','Manicura','Manicura'],['g3','Nail art','Manicura'],['g4','Diseño de uñas','Manicura']].map(a=>ph(a[0],a[2],a[1])).join('')}
 
 renderCat('Pedicura');renderGal();draw();route();
 </script></body></html>
