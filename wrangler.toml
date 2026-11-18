@@ -1,0 +1,8 @@
+name = "ayelen-pedicura"
+pages_build_output_dir = "public"
+compatibility_date = "2025-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "ayelen"
+database_id = "PEGAR_ACA_EL_ID_DE_TU_BASE"
