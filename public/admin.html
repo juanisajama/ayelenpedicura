@@ -1,0 +1,11 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Admin – Ayelen Pedicura</title>
+<style>body{font:15px system-ui;margin:0;padding:20px;background:#fff8fa;color:#241820}table{border-collapse:collapse;width:100%;font-size:13px}td,th{padding:8px;border-bottom:1px solid #f1d9e2;text-align:left;vertical-align:top}button,input{padding:8px 12px;border-radius:10px;border:1px solid #d6336c;font:inherit}button{background:#d6336c;color:#fff;cursor:pointer}.w{overflow-x:auto}</style></head><body>
+<h2>Agenda · Ayelen Pedicura</h2><div id="lg"><input id="pw" type="password" placeholder="Clave"> <button id="in">Entrar</button></div><div class="w"><table id="tb"></table></div>
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),f=(u,o)=>fetch(u,{credentials:'same-origin',headers:{'content-type':'application/json'},...o});
+const hm=m=>String(m/60|0).padStart(2,'0')+':'+String(m%60).padStart(2,'0'),$$=n=>'$'+n.toLocaleString('es-AR');
+async function load(){const r=await f('/api/admin/bookings');if(!r.ok){$('#lg').hidden=false;return}$('#lg').hidden=true;const l=await r.json();
+$('#tb').innerHTML='<tr><th>Fecha</th><th>Cliente</th><th>Servicios</th><th>Seña</th><th>Estado</th><th></th></tr>'+l.map(b=>`<tr><td>${b.date}<br>${hm(b.start_min)}</td><td>${esc(b.name)}<br><a href="https://wa.me/${esc(b.phone.replace(/\D/g,''))}">${esc(b.phone)}</a></td><td>${esc(b.services)}<br>${$$(b.total)}</td><td>${$$(b.deposit)}<br>${b.pay_method==='mp'?'Mercado Pago':'Transferencia'}</td><td>${esc(b.status)}</td><td>${['Cancelado','Vencido'].includes(b.status)?'':`<button data-a="confirm" data-i="${b.id}">Confirmar pago</button> <button data-a="cancel" data-i="${b.id}">Cancelar</button>`}</td></tr>`).join('')}
+$('#in').onclick=async()=>{const r=await f('/api/admin/login',{method:'POST',body:JSON.stringify({password:$('#pw').value})});r.ok?load():alert('Clave incorrecta')};
+$('#tb').onclick=async e=>{const a=e.target.dataset.a;if(a&&confirm('¿Seguro?')){await f(`/api/admin/bookings/${e.target.dataset.i}/${a}`,{method:'POST'});load()}};load();
+</script></body></html>
