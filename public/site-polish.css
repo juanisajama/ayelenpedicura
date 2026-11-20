@@ -436,3 +436,305 @@ footer {
     transition-duration: .01ms !important;
   }
 }
+
+
+/* Refinamiento premium: consistencia visual sin modificar HTML, IDs ni lógica. */
+:root {
+  --premium-ink: #392a30;
+  --premium-wine: #804458;
+  --premium-rose: #b77d8c;
+  --premium-line: #e7d8dc;
+  --premium-shadow: 0 24px 60px -42px rgba(58, 31, 43, .42);
+}
+
+body {
+  background: var(--bg);
+  color: var(--premium-ink);
+  letter-spacing: -.008em;
+}
+
+::selection {
+  color: #fff;
+  background: #804458;
+}
+
+header {
+  border-bottom: 1px solid rgba(128, 68, 88, .12);
+  box-shadow: 0 8px 28px -24px rgba(57, 42, 48, .5);
+}
+
+.logo {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(21px, 2vw, 25px);
+}
+
+.hero {
+  min-height: clamp(470px, 58vw, 640px);
+  padding-block: clamp(76px, 10vw, 126px);
+}
+
+.hero:before {
+  background-image:
+    linear-gradient(90deg, rgba(31, 22, 28, .88) 0%, rgba(31, 22, 28, .67) 48%, rgba(31, 22, 28, .2) 100%),
+    url('/img/manicura%20(3).jfif');
+  background-position: center 46%;
+}
+
+.hero h1 {
+  max-width: 720px;
+  font-size: clamp(42px, 6vw, 72px);
+  line-height: 1.04;
+}
+
+.hero p {
+  max-width: 510px;
+  font-size: clamp(16px, 1.5vw, 18px);
+}
+
+.eyebrow {
+  font-weight: 600;
+}
+
+section:not(.featured-treatment):not(.social-section) .wrap > h2 {
+  color: var(--premium-ink);
+}
+
+.card,
+.treatment-card,
+.social-card,
+.instagram-preview,
+#p-reservar .box,
+.box {
+  border-color: var(--premium-line);
+  box-shadow: var(--premium-shadow);
+}
+
+.card {
+  overflow: hidden;
+}
+
+.card .ph {
+  overflow: hidden;
+  background: #f1e5e7;
+}
+
+.card .ph img,
+.gal .ph img,
+.instagram-grid img {
+  transition: transform .55s cubic-bezier(.2,.7,.2,1), filter .3s ease;
+}
+
+.card:hover .ph img,
+.gal .ph:hover img,
+.instagram-preview:hover .instagram-grid img {
+  transform: scale(1.045);
+}
+
+.gal {
+  align-items: start;
+  gap: clamp(10px, 1.5vw, 18px);
+  margin-top: 22px;
+}
+
+.gal .ph {
+  box-shadow: 0 12px 28px -24px rgba(57, 42, 48, .7);
+}
+
+.gal .ph:nth-child(even) {
+  transform: translateY(16px);
+}
+
+.ben > div {
+  min-height: 112px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-radius: 18px;
+}
+
+.ben b {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 18px;
+}
+
+.featured-treatment {
+  padding-top: clamp(28px, 4vw, 48px);
+}
+
+.treatment-card {
+  overflow: hidden;
+  border-radius: 28px;
+}
+
+.treatment-art {
+  position: relative;
+  min-height: 360px;
+}
+
+.treatment-art img {
+  transition: transform .65s cubic-bezier(.2,.7,.2,1);
+}
+
+.treatment-card:hover .treatment-art img {
+  transform: scale(1.025);
+}
+
+.treatment-content h2 {
+  font-size: clamp(28px, 3.4vw, 38px);
+}
+
+.treatment-badge {
+  letter-spacing: .12em;
+}
+
+.treatment-price strong {
+  font-size: 20px;
+  letter-spacing: -.02em;
+}
+
+.social-card {
+  gap: clamp(22px, 4vw, 44px);
+}
+
+.instagram-preview {
+  overflow: hidden;
+}
+
+.instagram-grid img {
+  aspect-ratio: 1 / 1.08;
+}
+
+.instagram-caption {
+  margin: 0;
+  background: var(--card);
+}
+
+#p-reservar > section > .wrap > h2 {
+  font-size: clamp(30px, 4vw, 40px);
+}
+
+#p-reservar .box {
+  border-radius: 26px;
+}
+
+.step > b {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--premium-ink);
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 19px;
+}
+
+.chip,
+.tab,
+.cal button {
+  box-shadow: none;
+}
+
+.chip.on,
+.tab.on,
+.cal button.on {
+  box-shadow: 0 5px 14px -10px rgba(81, 38, 55, .8);
+}
+
+input, textarea, select {
+  color: var(--premium-ink);
+}
+
+.sum {
+  border-color: #e2c9d0;
+  box-shadow: inset 0 1px rgba(255,255,255,.45);
+}
+
+#go {
+  margin-top: 4px;
+  letter-spacing: .01em;
+}
+
+.wa {
+  border: 1px solid rgba(255,255,255,.4);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.wa:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 30px rgba(26, 28, 24, .25);
+}
+
+footer {
+  background: linear-gradient(180deg, transparent, rgba(231,216,220,.22));
+}
+
+@media (min-width: 1000px) {
+  #p-reservar .box {
+    max-width: 920px;
+    margin-inline: auto;
+  }
+}
+
+@media (max-width: 700px) {
+  .hero {
+    min-height: 470px;
+    padding-block: 72px 64px;
+  }
+
+  .hero:before {
+    background-image:
+      linear-gradient(90deg, rgba(31, 22, 28, .84), rgba(31, 22, 28, .53)),
+      url('/img/manicura%20(3).jfif');
+    background-position: 60% center;
+  }
+
+  .gal .ph:nth-child(even) {
+    transform: translateY(10px);
+  }
+
+  .treatment-art {
+    min-height: 250px;
+  }
+
+  .ben > div {
+    min-height: 104px;
+    padding: 18px 12px;
+  }
+}
+
+@media (max-width: 420px) {
+  .hero {
+    min-height: 450px;
+  }
+
+  .hero h1 {
+    font-size: clamp(36px, 10vw, 44px);
+  }
+
+  .hero p {
+    line-height: 1.65;
+  }
+
+  .treatment-card {
+    border-radius: 21px;
+  }
+
+  .social-card {
+    padding: 20px;
+  }
+
+  .instagram-head {
+    padding: 11px;
+  }
+
+  .instagram-follow {
+    font-size: 11px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card:hover,
+  .instagram-preview:hover,
+  .wa:hover,
+  .treatment-card:hover .treatment-art img {
+    transform: none;
+  }
+}
