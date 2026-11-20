@@ -1,0 +1,24 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Preview Cloudflare Pages",
+			"type": "shell",
+			"command": "wrangler",
+			"args": [
+				"d1",
+				"execute",
+				"ayelen",
+				"--local",
+				"--file=schema.sql",
+				"&&",
+				"wrangler",
+				"pages",
+				"dev"
+			],
+			"isBackground": true,
+			"problemMatcher": [],
+			"group": "build"
+		}
+	]
+}

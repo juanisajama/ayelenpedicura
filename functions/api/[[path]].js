@@ -6,6 +6,28 @@ const sign=async(k,m)=>hex(await crypto.subtle.sign('HMAC',await crypto.subtle.i
 const same=(a,b)=>a.length===b.length&&[...a].reduce((r,c,i)=>r|(c.charCodeAt(0)^b.charCodeAt(i)),0)===0;
 const hh=m=>String(m/60|0).padStart(2,'0')+String(m%60).padStart(2,'0');
 const clean=(s,n)=>String(s||'').trim().slice(0,n);
+const settingKeys=['whatsapp','deposit_pct','open','close','step','closed_days','pending_minutes','transfer_minutes','antimicotico_extra_price','bank_alias','bank_cbu','bank_titular','bank_banco','policy'];
+const settingDefaults={whatsapp:'5491136009440',deposit_pct:'15',open:'9',close:'19',step:'30',closed_days:'0',pending_minutes:'30',transfer_minutes:'1440',antimicotico_extra_price:'2500',bank_alias:'COMPLETAR.ALIAS',bank_cbu:'COMPLETAR',bank_titular:'COMPLETAR',bank_banco:'COMPLETAR',policy:'Podés reprogramar con 24 h de anticipación. La seña no es reembolsable salvo cancelación del local.'};
+const clockMinutes=value=>{const legacy=/^\d{1,2}$/.test(String(value));if(legacy)return Number(value)<24?Number(value)*60:null;const m=/^(\d{2}):(\d{2})$/.exec(String(value));return m&&Number(m[1])<24&&Number(m[2])<60?Number(m[1])*60+Number(m[2]):null};
+const clockText=value=>{const minutes=clockMinutes(value);return minutes===null?'':`${String(minutes/60|0).padStart(2,'0')}:${String(minutes%60).padStart(2,'0')}`};
+const settingInteger=(value,label,min,max=Number.MAX_SAFE_INTEGER)=>{
+ const text=String(value);if(!/^\d+$/.test(text))return `${label} debe ser un número entero.`;
+ const number=Number(text);if(!Number.isSafeInteger(number)||number<min||number>max)return `${label} debe estar entre ${min} y ${max}.`;
+ return null
+};
+function validateSetting(key,value){
+ if(typeof value!=='string'&&typeof value!=='number')return `El valor de "${key}" debe ser texto o un número.`;
+ const text=String(value);
+ if(key==='deposit_pct')return settingInteger(text,'El porcentaje de seña',0,100);
+ if(key==='antimicotico_extra_price')return settingInteger(text,'El precio adicional',0);
+ if(key==='open'||key==='close')return /^\d{2}:\d{2}$/.test(text)&&clockMinutes(text)!==null?null:`"${key}" debe tener formato HH:MM.`;
+ if(key==='whatsapp')return /^54\d{8,13}$/.test(text)?null:'WhatsApp debe incluir el código de país argentino 54 y contener solo dígitos.';
+ if(key==='step')return settingInteger(text,'El intervalo entre turnos',1,180);
+ if(key==='pending_minutes'||key==='transfer_minutes')return settingInteger(text,'El plazo de pago',1);
+ if(key==='closed_days')return /^(?:[0-6](?:,[0-6])*)?$/.test(text)&&new Set(text?text.split(','):[]).size===(text?text.split(',').length:0)?null:'Los días cerrados deben ser números del 0 al 6, separados por comas.';
+ const limits={bank_alias:100,bank_cbu:100,bank_titular:120,bank_banco:120,policy:2000};
+ return text.length<=limits[key]?null:`"${key}" supera el máximo de ${limits[key]} caracteres.`
+}
 function parseAppointmentStart(date,time,step){
  if(!/^\d{4}-\d\d-\d\d$/.test(date))return null;
  const parsedDate=new Date(date+'T12:00:00Z');
@@ -38,8 +60,14 @@ async function selectedServices(DB,ids,treatmentQuantity,c){
  }
 }
 async function settings(DB){return Object.fromEntries((await DB.prepare('SELECT key,value FROM settings').all()).results.map(r=>[r.key,r.value]))}
+async function editableSettings(DB){
+ const current=await settings(DB),result={};
+ for(const key of settingKeys)result[key]=current[key]??settingDefaults[key];
+ result.open=clockText(result.open);result.close=clockText(result.close);
+ return result
+}
 async function cleanup(DB){const t=Date.now();await DB.batch([DB.prepare("DELETE FROM slots WHERE booking_id IN(SELECT id FROM bookings WHERE status IN('Pendiente de pago','Pendiente de validación') AND expires_at<?)").bind(t),DB.prepare("UPDATE bookings SET status='Vencido' WHERE status IN('Pendiente de pago','Pendiente de validación') AND expires_at<?").bind(t)])}
-async function avail(DB,c,date,dur,excludeBookingId=null){const step=+c.step,open=+c.open*60,close=+c.close*60;
+async function avail(DB,c,date,dur,excludeBookingId=null){const step=+c.step,open=clockMinutes(c.open),close=clockMinutes(c.close);
  if(c.closed_days.split(',').includes(String(new Date(date+'T12:00:00Z').getUTCDay())))return[];
  const usedQuery=excludeBookingId?DB.prepare('SELECT start_min m FROM slots WHERE date=? AND booking_id<>?').bind(date,excludeBookingId):DB.prepare('SELECT start_min m FROM slots WHERE date=?').bind(date);
  const used=new Set((await usedQuery.all()).results.map(r=>r.m));
@@ -53,7 +81,7 @@ export async function onRequest({request:req,env,params}){
  const DB=env.DB,url=new URL(req.url),p=(params.path||[]).join('/'),M=req.method;
  try{
  if(p==='config'){await cleanup(DB);const c=await settings(DB);const s=(await DB.prepare('SELECT id,category,name,description,price,minutes FROM services WHERE active=1').all()).results;
-  const{bank_alias,bank_cbu,bank_titular,bank_banco,whatsapp,deposit_pct,open,close,step,closed_days,policy}=c;return J({whatsapp,deposit_pct,open,close,step,closed_days,policy,antimicotico_extra_price:c.antimicotico_extra_price??'2500',bank:{alias:bank_alias,cbu:bank_cbu,titular:bank_titular,banco:bank_banco},services:s})}
+  const{bank_alias,bank_cbu,bank_titular,bank_banco,whatsapp,deposit_pct,step,closed_days,policy}=c;return J({whatsapp,deposit_pct,open:clockText(c.open),close:clockText(c.close),step,closed_days,policy,transfer_minutes:c.transfer_minutes??'1440',antimicotico_extra_price:c.antimicotico_extra_price??'2500',bank:{alias:bank_alias,cbu:bank_cbu,titular:bank_titular,banco:bank_banco},services:s})}
  if(p==='availability'){await cleanup(DB);const d=url.searchParams.get('date')||'',dur=+url.searchParams.get('minutes')||0;if(!/^\d{4}-\d\d-\d\d$/.test(d)||dur<=0)return J({error:'Datos inválidos'},400);
   return J({slots:(await avail(DB,await settings(DB),d,dur)).map(hh)})}
  if(p==='bookings'&&M==='POST'){await cleanup(DB);const b=await req.json(),c=await settings(DB);
@@ -87,7 +115,37 @@ export async function onRequest({request:req,env,params}){
   if(!same(h,env.ADMIN_HASH||'x'))return J({error:'Clave incorrecta'},401);const e=Date.now()+12*3600e3;
   return J({ok:true},200,{'set-cookie':`s=${e}.${await sign(env.SESSION_SECRET,String(e))}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=43200`})}
  if(p.startsWith('admin/')){if(!(await admin(req,env)))return J({error:'No autorizado'},401);
-  if(p==='admin/services'&&M==='GET')return J((await DB.prepare("SELECT id,category,name,price,minutes FROM services WHERE active=1 ORDER BY category,name").all()).results);
+  if(p==='admin/settings'&&M==='GET')return J(await editableSettings(DB));
+  if(p==='admin/settings'&&M==='PUT'){
+   let values;try{values=await req.json()}catch(error){return J({error:'El cuerpo de la solicitud no es un JSON válido.'},400)}
+   if(!values||typeof values!=='object'||Array.isArray(values))return J({error:'Enviá un objeto con los ajustes que querés actualizar.'},400);
+   const keys=Object.keys(values),unknown=keys.find(key=>!settingKeys.includes(key));
+   if(unknown)return J({error:`La clave "${unknown}" no está permitida.`},400);
+   const current=await editableSettings(DB),next={...current,...values};
+   for(const key of keys){const error=validateSetting(key,values[key]);if(error)return J({error},400)}
+   if(clockMinutes(next.close)<=clockMinutes(next.open))return J({error:'El horario de cierre debe ser posterior al de apertura.'},400);
+   const updates=keys.map(key=>DB.prepare('INSERT INTO settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value').bind(key,String(values[key])));
+   if(updates.length)await DB.batch(updates);
+   return J(await editableSettings(DB))
+  }
+  if(p==='admin/services'&&M==='GET')return J((await DB.prepare('SELECT id,category,name,description,price,minutes,active FROM services ORDER BY category,name').all()).results);
+  const serviceMatch=p.match(/^admin\/services\/([\w-]+)$/);
+  if(serviceMatch&&M==='PUT'){
+   let values;try{values=await req.json()}catch(error){return J({error:'El cuerpo de la solicitud no es un JSON válido.'},400)}
+   if(!values||typeof values!=='object'||Array.isArray(values))return J({error:'Enviá los datos del servicio como un objeto.'},400);
+   const allowed=['name','description','price','minutes','active'],unknown=Object.keys(values).find(key=>!allowed.includes(key));
+   if(unknown)return J({error:`El campo "${unknown}" no está permitido.`},400);
+   if(allowed.some(key=>!Object.prototype.hasOwnProperty.call(values,key)))return J({error:'Completá nombre, descripción, precio, duración y estado del servicio.'},400);
+   if(typeof values.name!=='string'||!values.name.trim()||values.name.trim().length>100)return J({error:'El nombre debe tener entre 1 y 100 caracteres.'},400);
+   if(typeof values.description!=='string'||values.description.length>1000)return J({error:'La descripción debe tener hasta 1000 caracteres.'},400);
+   const priceError=settingInteger(values.price,'El precio',0),minutesError=settingInteger(values.minutes,'La duración',1,1440);
+   if(priceError)return J({error:priceError},400);
+   if(minutesError)return J({error:minutesError},400);
+   if(typeof values.active!=='boolean')return J({error:'El estado activo debe ser verdadero o falso.'},400);
+   const result=await DB.prepare('UPDATE services SET name=?,description=?,price=?,minutes=?,active=? WHERE id=?').bind(values.name.trim(),values.description,Number(values.price),Number(values.minutes),values.active?1:0,serviceMatch[1]).run();
+   if(!result.meta.changes)return J({error:'No se encontró el servicio.'},404);
+   return J(await DB.prepare('SELECT id,category,name,description,price,minutes,active FROM services WHERE id=?').bind(serviceMatch[1]).first())
+  }
   if(p==='admin/bookings'&&M==='GET'){
    await cleanup(DB);
    const[catalog,rows]=await Promise.all([DB.prepare('SELECT id,name FROM services').all(),DB.prepare('SELECT * FROM bookings ORDER BY date DESC,start_min DESC LIMIT 300').all()]);

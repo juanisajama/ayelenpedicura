@@ -36,6 +36,21 @@ a{color:#985064}
 #form-actions{display:flex;flex-wrap:wrap;gap:8px}
 #cancel-edit{background:#fff;color:#985064}
 button:disabled{opacity:.55;cursor:wait;transform:none}
+.admin-section{margin:0 0 24px;padding:20px;background:#fffdfa;border:1px solid #e9d9d2;border-radius:18px}
+.admin-section h3{margin:0 0 6px;font:500 22px/1.3 'Playfair Display',Georgia,serif}
+.admin-section>p{margin:0 0 16px;color:#81716b;font-size:13px}
+.settings-group{margin:0 0 14px;padding:14px;border:1px solid #e9d9d2;border-radius:12px}
+.settings-group legend{padding:0 6px;font-weight:600}
+.settings-days{display:flex;flex-wrap:wrap;gap:8px}
+.settings-day{display:flex;align-items:center;gap:5px;font-weight:400}
+.settings-day input,.service-active input{width:auto;margin:0;accent-color:#985064}
+.service-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:12px}
+.service-card{padding:14px;border:1px solid #e9d9d2;border-radius:14px;background:#fff}
+.service-card h4{margin:0 0 10px}
+.service-active{display:flex;align-items:center;gap:8px;margin:6px 0 12px;font-weight:600;font-size:13px}
+.settings-status{min-height:1.5em;margin:8px 0 0;color:#81716b}
+.settings-status.error{color:#a43f52}
+textarea{padding:10px 14px;border-radius:12px;border:1px solid #e9d9d2;font:inherit;background:#fffdfa;color:#302521}
 :focus-visible{outline:3px solid #bb7880;outline-offset:3px}
 @media(max-width:600px){td,th{padding:10px 8px}#lg input{max-width:60%}}
 </style></head><body>
@@ -62,19 +77,76 @@ button:disabled{opacity:.55;cursor:wait;transform:none}
     </form>
   </section>
   <div class="w"><table id="tb"></table></div>
+  <section class="admin-section" aria-labelledby="settings-title">
+    <h3 id="settings-title">Ajustes</h3>
+    <p>Los cambios se aplican a las próximas visitas y reservas.</p>
+    <form id="settings-form">
+      <fieldset class="settings-group"><legend>Seña y pagos</legend>
+        <div class="form-grid">
+          <label class="field">Seña (%)<input name="deposit_pct" type="number" min="0" max="100" step="1" required></label>
+          <label class="field">Adicional por dedo antimicótico ($)<input name="antimicotico_extra_price" type="number" min="0" step="1" required></label>
+          <label class="field">Vencimiento de pago online (minutos)<input name="pending_minutes" type="number" min="1" step="1" required></label>
+          <label class="field">Vencimiento de transferencia (minutos)<input name="transfer_minutes" type="number" min="1" step="1" required></label>
+          <label class="field">Alias<input name="bank_alias" maxlength="100" required></label>
+          <label class="field">CBU / CVU<input name="bank_cbu" maxlength="100" required></label>
+          <label class="field">Titular<input name="bank_titular" maxlength="120" required></label>
+          <label class="field">Banco<input name="bank_banco" maxlength="120" required></label>
+          <label class="field">Política de reservas<textarea name="policy" rows="3" maxlength="2000"></textarea></label>
+        </div>
+      </fieldset>
+      <fieldset class="settings-group"><legend>Contacto</legend>
+        <label class="field">WhatsApp con código de país 54 (solo dígitos)<input name="whatsapp" type="tel" inputmode="numeric" pattern="54[0-9]{8,13}" required></label>
+      </fieldset>
+      <fieldset class="settings-group"><legend>Horarios</legend>
+        <div class="form-grid">
+          <label class="field">Apertura<input name="open" type="time" required></label>
+          <label class="field">Cierre<input name="close" type="time" required></label>
+          <label class="field">Intervalo entre turnos (minutos)<input name="step" type="number" min="1" max="180" step="1" required></label>
+        </div>
+        <p>Días cerrados</p>
+        <div id="closed-days" class="settings-days"></div>
+      </fieldset>
+      <button id="save-settings" type="submit">Guardar ajustes</button>
+      <p id="settings-status" class="settings-status" role="status" aria-live="polite"></p>
+    </form>
+  </section>
+  <section class="admin-section" aria-labelledby="service-settings-title">
+    <h3 id="service-settings-title">Precios de servicios</h3>
+    <p>Editá los datos y activá o pausá cada servicio. No se pueden borrar.</p>
+    <div id="service-list" class="service-grid"></div>
+    <p id="service-settings-status" class="settings-status" role="status" aria-live="polite"></p>
+  </section>
 </main>
 <script>
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),f=(u,o)=>fetch(u,{credentials:'same-origin',headers:{'content-type':'application/json'},...o});
 const hm=m=>String(m/60|0).padStart(2,'0')+':'+String(m%60).padStart(2,'0'),money=n=>'$'+Number(n||0).toLocaleString('es-AR');
-let bookings=[],services=[],editingId=null;
+let bookings=[],services=[],settings={},editingId=null;
 function setStatus(element,message,error=false){element.textContent=message;element.classList.toggle('error',error)}
 function renderServices(selected=[]){
  const chosen=new Set(selected);
- $('#service-options').innerHTML=services.map(s=>`<label class="service-option"><input type="checkbox" name="serviceIds" value="${esc(s.id)}" ${chosen.has(s.id)?'checked':''}><span><b>${esc(s.name)}</b><small>${esc(s.category)} · ${money(s.price)} · ${s.minutes} min</small></span></label>`).join('')||'<span>No hay servicios activos.</span>';
+ $('#service-options').innerHTML=services.filter(s=>s.active).map(s=>`<label class="service-option"><input type="checkbox" name="serviceIds" value="${esc(s.id)}" ${chosen.has(s.id)?'checked':''}><span><b>${esc(s.name)}</b><small>${esc(s.category)} · ${money(s.price)} · ${s.minutes} min</small></span></label>`).join('')||'<span>No hay servicios activos.</span>';
  $('#service-options').onchange=()=>{$('#treatment-qty-row').hidden=!checkedServiceIds().includes('p5')};
  $('#treatment-qty-row').hidden=!chosen.has('p5')
 }
 function checkedServiceIds(){return $$('input[name="serviceIds"]:checked').map(input=>input.value)}
+function renderSettings(){
+ const form=$('#settings-form');
+ Object.entries(settings).forEach(([key,value])=>{const input=form.elements.namedItem(key);if(input)input.value=value});
+ $('#closed-days').innerHTML=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'].map((day,index)=>`<label class="settings-day"><input type="checkbox" value="${index}" ${settings.closed_days.split(',').includes(String(index))?'checked':''}>${day}</label>`).join('')
+}
+function renderServiceEditor(){
+ $('#service-list').innerHTML=services.map(service=>`<form class="service-card" data-service-id="${esc(service.id)}">
+  <h4>${esc(service.name)} <small>· ${esc(service.category)}</small></h4>
+  <label class="field">Nombre<input name="name" value="${esc(service.name)}" maxlength="100" required></label>
+  <label class="field">Descripción<textarea name="description" rows="3" maxlength="1000">${esc(service.description||'')}</textarea></label>
+  <div class="form-grid">
+   <label class="field">Precio ($)<input name="price" type="number" min="0" step="1" value="${service.price}" required></label>
+   <label class="field">Duración (minutos)<input name="minutes" type="number" min="1" max="1440" step="1" value="${service.minutes}" required></label>
+  </div>
+  <label class="service-active"><input name="active" type="checkbox" ${service.active?'checked':''}>Servicio activo</label>
+  <button type="submit">Guardar servicio</button>
+ </form>`).join('')
+}
 function renderBookings(){
  $('#tb').innerHTML='<tr><th>Fecha y hora</th><th>Cliente</th><th>Servicios</th><th>Seña</th><th>Saldo / crédito</th><th>Estado</th><th>Acciones</th></tr>'+bookings.map(b=>{
   const balance=Number(b.balance||0),balanceText=balance<0?`Crédito ${money(-balance)}`:`Saldo ${money(balance)}`,method=b.pay_method==='mp'?'Mercado Pago':b.pay_method==='manual'?'Carga manual':'Transferencia',actions=['Cancelado','Vencido'].includes(b.status)?'':`<button data-a="edit" data-i="${esc(b.id)}">Editar</button> ${['Pendiente de pago','Pendiente de validación'].includes(b.status)?`<button data-a="confirm" data-i="${esc(b.id)}">Confirmar pago</button> `:''}<button data-a="cancel" data-i="${esc(b.id)}">Cancelar</button>`;
@@ -96,12 +168,13 @@ function editBooking(id){
 async function load(successMessage=''){
  setStatus($('#admin-status'),'Cargando agenda…');
  try{
-  const[bookingResponse,serviceResponse]=await Promise.all([f('/api/admin/bookings'),f('/api/admin/services')]);
-  if(bookingResponse.status===401||serviceResponse.status===401){$('#lg').hidden=false;$('#agenda').hidden=true;setStatus($('#admin-status'),'Ingresá con tu clave de administrador.');return}
-  if(!bookingResponse.ok||!serviceResponse.ok)throw new Error('No se pudo cargar la agenda o los servicios.');
-  bookings=await bookingResponse.json();services=await serviceResponse.json();
-  if(!Array.isArray(bookings)||!Array.isArray(services))throw new Error('La respuesta del servidor no es válida.');
+  const[bookingResponse,serviceResponse,settingsResponse]=await Promise.all([f('/api/admin/bookings'),f('/api/admin/services'),f('/api/admin/settings')]);
+  if([bookingResponse,serviceResponse,settingsResponse].some(response=>response.status===401)){$('#lg').hidden=false;$('#agenda').hidden=true;setStatus($('#admin-status'),'Ingresá con tu clave de administrador.');return}
+  if([bookingResponse,serviceResponse,settingsResponse].some(response=>!response.ok))throw new Error('No se pudo cargar la agenda, los servicios o los ajustes.');
+  bookings=await bookingResponse.json();services=await serviceResponse.json();settings=await settingsResponse.json();
+  if(!Array.isArray(bookings)||!Array.isArray(services)||!settings||typeof settings!=='object')throw new Error('La respuesta del servidor no es válida.');
   $('#lg').hidden=true;$('#agenda').hidden=false;
+  renderSettings();renderServiceEditor();
   if(!editingId)renderServices();
   renderBookings();setStatus($('#admin-status'),successMessage)
  }catch(error){$('#lg').hidden=false;$('#agenda').hidden=true;setStatus($('#admin-status'),'No se pudo conectar con la agenda. Revisá que el sitio esté ejecutándose con Cloudflare Pages Functions.',true)}
@@ -109,6 +182,30 @@ async function load(successMessage=''){
 $('#in').onclick=async()=>{
  try{const response=await f('/api/admin/login',{method:'POST',body:JSON.stringify({password:$('#pw').value})}),result=await response.json();if(!response.ok){setStatus($('#admin-status'),result.error||'No se pudo iniciar sesión.',true);return}setStatus($('#admin-status'),'');await load()}
  catch(error){setStatus($('#admin-status'),'No se pudo conectar con el panel. Revisá la conexión e intentá nuevamente.',true)}
+};
+$('#settings-form').onsubmit=async event=>{
+ event.preventDefault();
+ const form=event.currentTarget,button=$('#save-settings'),values=Object.fromEntries(new FormData(form).entries());
+ values.closed_days=$$('#closed-days input:checked').map(input=>input.value).join(',');
+ button.disabled=true;button.textContent='Guardando…';setStatus($('#settings-status'),'Guardando ajustes…');
+ try{
+  const response=await f('/api/admin/settings',{method:'PUT',body:JSON.stringify(values)}),result=await response.json();
+  if(!response.ok)throw new Error(result.error||'No se pudieron guardar los ajustes.');
+  settings=result;renderSettings();setStatus($('#settings-status'),'Ajustes guardados.');setStatus($('#admin-status'),'Ajustes guardados.')
+ }catch(error){setStatus($('#settings-status'),error.message||'No se pudieron guardar los ajustes.',true)}
+ finally{button.disabled=false;button.textContent='Guardar ajustes'}
+};
+$('#service-list').onsubmit=async event=>{
+ if(!event.target.matches('form[data-service-id]'))return;
+ event.preventDefault();
+ const form=event.target,button=form.querySelector('button'),id=form.dataset.serviceId,values=Object.fromEntries(new FormData(form).entries());
+ values.active=form.elements.active.checked;button.disabled=true;button.textContent='Guardando…';setStatus($('#service-settings-status'),'Guardando servicio…');
+ try{
+  const response=await f(`/api/admin/services/${encodeURIComponent(id)}`,{method:'PUT',body:JSON.stringify(values)}),result=await response.json();
+  if(!response.ok)throw new Error(result.error||'No se pudo guardar el servicio.');
+  services=services.map(service=>service.id===result.id?result:service);renderServiceEditor();if(!editingId)renderServices();setStatus($('#service-settings-status'),'Servicio guardado.');setStatus($('#admin-status'),'Servicio guardado.')
+ }catch(error){setStatus($('#service-settings-status'),error.message||'No se pudo guardar el servicio.',true)}
+ finally{const current=$(`#service-list form[data-service-id="${CSS.escape(id)}"] button`);if(current){current.disabled=false;current.textContent='Guardar servicio'}}
 };
 $('#appointment-form').onsubmit=async event=>{
  event.preventDefault();
