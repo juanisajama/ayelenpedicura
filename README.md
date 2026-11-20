@@ -8,6 +8,7 @@ Cloudflare Pages + Functions + D1 (base de datos). Sin build: se publica tal cua
 4. Cloudflare → Workers & Pages → Create → Pages → Connect to Git → elegí el repo (build command vacío, output `public`).
 5. En el proyecto → Settings → Bindings: D1 con nombre `DB` apuntando a `ayelen`. En Variables y secretos agregá:
    - `MP_ACCESS_TOKEN`: access token de producción de Mercado Pago (Tus integraciones).
+   - `MP_WEBHOOK_SECRET`: clave secreta de firma configurada para la notificación Webhooks de Mercado Pago.
    - `SESSION_SECRET`: texto largo aleatorio.
    - `ADMIN_HASH`: `node -e "console.log(require('crypto').createHash('sha256').update('SESSION_SECRET_ACA'+'TU_CLAVE').digest('hex'))"`
 6. Mercado Pago → tu integración → Webhooks → URL `https://TU-DOMINIO/api/mp/webhook`, evento "Pagos".
@@ -21,6 +22,6 @@ Cloudflare Pages + Functions + D1 (base de datos). Sin build: se publica tal cua
 Un servidor estático simple no ejecuta las Pages Functions y por eso la disponibilidad y el panel no funcionan allí. Inicializá la D1 local con `npx wrangler d1 execute ayelen --local --file=schema.sql`, configurá `SESSION_SECRET` y `ADMIN_HASH` en `.dev.vars` (ver el paso 5) y ejecutá `npx wrangler pages dev`. El archivo `.dev.vars` no se sube a Git.
 
 ## Notas
-- Seguridad: la confirmación de pago solo ocurre desde el webhook, que vuelve a consultar el pago a Mercado Pago. Agregá una regla de Rate Limiting de Cloudflare a `/api/admin/login`.
+- Seguridad: el webhook valida `x-signature` con `MP_WEBHOOK_SECRET`, vuelve a consultar el pago a Mercado Pago y solo confirma si el importe en ARS coincide exactamente con la seña. Agregá una regla de Rate Limiting de Cloudflare a `/api/admin/login`.
 - Turnos duplicados: lo impide la clave primaria de `slots` (fecha + bloque).
 - Backups: `wrangler d1 export ayelen --remote --output=backup.sql` (D1 también tiene Time Travel).

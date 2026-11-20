@@ -1,4 +1,4 @@
-// API completa en una sola función de Cloudflare Pages. Bindings: DB (D1). Secretos: MP_ACCESS_TOKEN, SESSION_SECRET, ADMIN_HASH
+// API completa en una sola función de Cloudflare Pages. Bindings: DB (D1). Secretos: MP_ACCESS_TOKEN, MP_WEBHOOK_SECRET, SESSION_SECRET, ADMIN_HASH
 const J=(d,s=200,h={})=>new Response(JSON.stringify(d),{status:s,headers:{'content-type':'application/json',...h}});
 const enc=s=>new TextEncoder().encode(s),hex=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
 const sha=async s=>hex(await crypto.subtle.digest('SHA-256',enc(s)));
@@ -77,6 +77,18 @@ async function avail(DB,c,date,dur,excludeBookingId=null){const step=+c.step,ope
  for(let m=open;m+dur<=close;m+=step){if(date===today&&m<=nm)continue;let ok=true;for(let x=m;x<m+dur;x+=step)if(used.has(x)){ok=false;break}if(ok)out.push(m)}return out}
 const free=async(DB,id)=>DB.batch([DB.prepare('DELETE FROM slots WHERE booking_id=?').bind(id)]);
 async function admin(req,env){const m=(req.headers.get('cookie')||'').match(/s=(\d+)\.([a-f0-9]+)/);return !!m&&+m[1]>Date.now()&&same(m[2],await sign(env.SESSION_SECRET,m[1]))}
+async function validMercadoPagoSignature(req,paymentId,secret){
+ const signature=req.headers.get('x-signature')||'',requestId=req.headers.get('x-request-id')||'',parts={};
+ if(!signature||!requestId)return false;
+ for(const item of signature.split(',')){
+  const separator=item.indexOf('=');if(separator<1)return false;
+  const name=item.slice(0,separator).trim(),value=item.slice(separator+1).trim();
+  if(name==='ts'||name==='v1'){if(parts[name]!==undefined)return false;parts[name]=value}
+ }
+ if(!/^\d+$/.test(parts.ts||'')||! /^[a-f0-9]{64}$/i.test(parts.v1||''))return false;
+ const manifest=`id:${String(paymentId).toLowerCase()};request-id:${requestId};ts:${parts.ts};`;
+ return same(await sign(secret,manifest),parts.v1.toLowerCase())
+}
 export async function onRequest({request:req,env,params}){
  const DB=env.DB,url=new URL(req.url),p=(params.path||[]).join('/'),M=req.method;
  try{
@@ -101,12 +113,20 @@ export async function onRequest({request:req,env,params}){
   if(method==='mp'){const o=url.origin,r=await fetch('https://api.mercadopago.com/checkout/preferences',{method:'POST',headers:{authorization:'Bearer '+env.MP_ACCESS_TOKEN,'content-type':'application/json'},body:JSON.stringify({items:[{title:'Seña de turno - Ayelen Pedicura',quantity:1,unit_price:dep,currency_id:'ARS'}],external_reference:id,notification_url:o+'/api/mp/webhook',back_urls:{success:o+'/?pago=ok',failure:o+'/?pago=error',pending:o+'/?pago=pendiente'},auto_return:'approved'})});
    const pr=await r.json();if(!r.ok||!pr.init_point){await free(DB,id);await DB.prepare("UPDATE bookings SET status='Cancelado' WHERE id=?").bind(id).run();return J({error:'No se pudo iniciar el pago'},502)}out.init_point=pr.init_point}
   return J(out,201)}
- if(p==='mp/webhook'){const b=await req.json().catch(()=>({})),pid=b.data?.id||url.searchParams.get('data.id')||url.searchParams.get('id');
-  if(pid&&(b.type==='payment'||url.searchParams.get('topic')==='payment'||url.searchParams.get('type')==='payment')){
-   const r=await fetch('https://api.mercadopago.com/v1/payments/'+encodeURIComponent(pid),{headers:{authorization:'Bearer '+env.MP_ACCESS_TOKEN}});if(!r.ok)return J({ok:false},500);
+ if(p==='mp/webhook'){
+  if(!env.MP_WEBHOOK_SECRET)return J({error:'El webhook de Mercado Pago no está configurado.'},500);
+  let b;try{const body=await req.text();b=body?JSON.parse(body):{}}catch(error){return J({error:'El cuerpo de la notificación no es válido.'},400)}
+  if(!b||typeof b!=='object'||Array.isArray(b))return J({error:'El cuerpo de la notificación no es válido.'},400);
+  const urlPaymentId=url.searchParams.get('data.id'),bodyPaymentId=b.data?.id==null?'':String(b.data.id);
+  if(urlPaymentId&&bodyPaymentId&&urlPaymentId.toLowerCase()!==bodyPaymentId.toLowerCase())return J({error:'El ID de pago de la notificación no coincide.'},400);
+  const pid=urlPaymentId||bodyPaymentId||url.searchParams.get('id');
+  if(!pid)return J({error:'Falta el ID del pago en la notificación.'},400);
+  if(!(await validMercadoPagoSignature(req,pid,env.MP_WEBHOOK_SECRET)))return J({error:'La firma de la notificación no es válida.'},401);
+  if(b.type==='payment'||url.searchParams.get('topic')==='payment'||url.searchParams.get('type')==='payment'){
+   const r=await fetch('https://api.mercadopago.com/v1/payments/'+encodeURIComponent(pid),{headers:{authorization:'Bearer '+env.MP_ACCESS_TOKEN}});if(!r.ok)return J({error:'No se pudo consultar el pago en Mercado Pago.'},502);
    const pay=await r.json(),bk=await DB.prepare('SELECT * FROM bookings WHERE id=?').bind(pay.external_reference||'').first();
    if(bk){await DB.prepare('INSERT OR REPLACE INTO payments VALUES(?,?,?,?,?,?)').bind(String(pid),bk.id,'mercadopago',pay.status,pay.transaction_amount,Date.now()).run();
-    if(pay.status==='approved'&&+pay.transaction_amount>=bk.deposit&&bk.status!=='Cancelado'){
+    if(pay.status==='approved'&&Number(pay.transaction_amount)===Number(bk.deposit)&&pay.currency_id==='ARS'&&bk.status!=='Cancelado'){
      if(bk.status==='Vencido'){const s=[];for(let x=bk.start_min;x<bk.start_min+bk.duration;x+=30)s.push(DB.prepare('INSERT OR IGNORE INTO slots VALUES(?,?,?)').bind(bk.date,x,bk.id));await DB.batch(s)}
      await DB.prepare("UPDATE bookings SET status='Confirmado',pay_status='approved',mp_payment_id=?,expires_at=NULL WHERE id=?").bind(String(pid),bk.id).run()}
     else if(pay.status==='rejected')await DB.prepare("UPDATE bookings SET pay_status='rejected' WHERE id=?").bind(bk.id).run()}}
