@@ -251,7 +251,7 @@ nav a.keep.btn:hover{background:linear-gradient(135deg,#814356,#a45c6b);box-shad
 <div class="box"><div class="step"><b>1. Servicios</b><div class="tabs"><button class="tab on" data-r="Pedicura">Pedicura</button><button class="tab" data-r="Manicura">Manicura</button></div><div id="svcs"></div><div id="treatment-quantity-booking"></div></div>
 <div class="step"><b>2. Día</b><div class="mh"><button class="chip" id="pm">‹</button><span id="mt"></span><button class="chip" id="nm2">›</button></div><div class="cal" id="cal"></div></div>
 <div class="step"><b>3. Horario</b><div id="availability-status" class="note" role="status" aria-live="polite">Elegí servicios y día.</div><div id="slots"></div><button class="chip" id="retry-availability" type="button" hidden>Reintentar horarios</button></div>
-<div class="step"><b>4. Tus datos</b><input id="nm" placeholder="Nombre y apellido"><input id="tel" type="tel" placeholder="Teléfono"><input id="em" type="email" placeholder="Correo (opcional)"><textarea id="ob" rows="2" placeholder="Observaciones (opcional)"></textarea></div>
+<div class="step"><b>4. Tus datos</b><input id="nm" placeholder="Nombre y apellido" autocomplete="name" required title="Ingresá nombre y apellido"><input id="tel" type="tel" inputmode="numeric" placeholder="Teléfono" aria-describedby="tel-hint" autocomplete="tel-national" required><small id="tel-hint" class="note">Ingresá 11 y tu número, sin 549. Ejemplo: 11 3600-9440.</small><input id="em" type="email" placeholder="Correo (opcional)"><textarea id="ob" rows="2" placeholder="Observaciones (opcional)"></textarea></div>
 <div class="step"><b>5. Pago de la seña</b><button class="chip on" data-p="mp">Mercado Pago</button><button class="chip" data-p="tr">Transferencia</button><div id="pinfo" class="note"></div></div>
 <div class="sum" id="sum"></div><button class="btn" id="go" disabled>Confirmar reserva</button><div id="booking-status" class="note" role="status" aria-live="polite"></div><div id="res"></div></div></div></section></div>
 </main>
@@ -406,7 +406,10 @@ function draw(){
  const b=CFG.bank;$('#pinfo').innerHTML=st.pay==='mp'?'Pagás desde el checkout de Mercado Pago. Se confirma al acreditarse el pago.':`Alias: <b>${esc(b.alias)}</b> · CBU: ${esc(b.cbu)}<br>Titular: ${esc(b.titular)} · Banco: ${esc(b.banco)}<br>Transferí el importe exacto. Queda pendiente hasta validarlo.`;
  $$('.chip[data-p]').forEach(x=>x.classList.toggle('on',x.dataset.p===st.pay));
  const t=total();$('#sum').innerHTML=t?`<div><span>Total</span><span>${money(t)}</span></div><div><span>Duración</span><span>${dur()} min</span></div><div class="big"><span>Seña (${CFG.pct} %)</span><span>${money(seña())}</span></div><div><span>Saldo en el local</span><span>${money(t-seña())}</span></div>`:'<span class="note">Elegí al menos un servicio.</span>';check()}
-const check=()=>{$('#go').disabled=!(configReady&&!isSubmitting&&availabilityState==='ready'&&AV?.includes(st.time)&&st.sel.size&&st.date&&st.time&&$('#nm').value.trim().length>2&&$('#tel').value.replace(/\D/g,'').length>=8)};
+const validCustomerName=value=>value.trim().split(/\s+/).length>=2;
+const localPhoneDigits=value=>/^[\d\s()-]+$/.test(value.trim())?value.replace(/\D/g,''):'';
+const validLocalPhone=value=>/^11\d{8}$/.test(localPhoneDigits(value));
+const check=()=>{$('#go').disabled=!(configReady&&!isSubmitting&&availabilityState==='ready'&&AV?.includes(st.time)&&st.sel.size&&st.date&&st.time&&validCustomerName($('#nm').value)&&validLocalPhone($('#tel').value))};
 document.addEventListener('input',e=>{if(e.target.closest('#p-reservar'))check()});
 $('#pm').onclick=()=>{const d=new Date(st.y,st.m-1,1);st.y=d.getFullYear();st.m=d.getMonth();draw()};$('#nm2').onclick=()=>{const d=new Date(st.y,st.m+1,1);st.y=d.getFullYear();st.m=d.getMonth();draw()};
 $('#p-reservar').onchange=e=>{if(e.target.matches('[data-treatment-quantity]')){st.treatmentQuantity=Number(e.target.value);draw()}};

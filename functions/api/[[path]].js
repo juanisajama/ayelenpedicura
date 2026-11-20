@@ -6,6 +6,9 @@ const sign=async(k,m)=>hex(await crypto.subtle.sign('HMAC',await crypto.subtle.i
 const same=(a,b)=>a.length===b.length&&[...a].reduce((r,c,i)=>r|(c.charCodeAt(0)^b.charCodeAt(i)),0)===0;
 const hh=m=>String(m/60|0).padStart(2,'0')+String(m%60).padStart(2,'0');
 const clean=(s,n)=>String(s||'').trim().slice(0,n);
+const hasFullName=name=>name.trim().split(/\s+/).length>=2;
+const localPhoneDigits=phone=>/^[\d\s()-]+$/.test(phone)?phone.replace(/\D/g,''):'';
+const hasValidLocalPhone=phone=>/^11\d{8}$/.test(localPhoneDigits(phone));
 const settingKeys=['whatsapp','deposit_pct','open','close','step','closed_days','pending_minutes','transfer_minutes','antimicotico_extra_price','bank_alias','bank_cbu','bank_titular','bank_banco','policy'];
 const settingDefaults={whatsapp:'5491136009440',deposit_pct:'15',open:'9',close:'19',step:'30',closed_days:'0',pending_minutes:'30',transfer_minutes:'1440',antimicotico_extra_price:'2500',bank_alias:'COMPLETAR.ALIAS',bank_cbu:'COMPLETAR',bank_titular:'COMPLETAR',bank_banco:'COMPLETAR',policy:'Podés reprogramar con 24 h de anticipación. La seña no es reembolsable salvo cancelación del local.'};
 const clockMinutes=value=>{const legacy=/^\d{1,2}$/.test(String(value));if(legacy)return Number(value)<24?Number(value)*60:null;const m=/^(\d{2}):(\d{2})$/.exec(String(value));return m&&Number(m[1])<24&&Number(m[2])<60?Number(m[1])*60+Number(m[2]):null};
@@ -97,8 +100,11 @@ export async function onRequest({request:req,env,params}){
  if(p==='availability'){await cleanup(DB);const d=url.searchParams.get('date')||'',dur=+url.searchParams.get('minutes')||0;if(!/^\d{4}-\d\d-\d\d$/.test(d)||dur<=0)return J({error:'Datos inválidos'},400);
   return J({slots:(await avail(DB,await settings(DB),d,dur)).map(hh)})}
  if(p==='bookings'&&M==='POST'){await cleanup(DB);const b=await req.json(),c=await settings(DB);
-  const name=clean(b.name,80),phone=clean(b.phone,30),date=clean(b.date,10),t=clean(b.time,4),ids=Array.isArray(b.serviceIds)?[...new Set(b.serviceIds)].slice(0,10):[],treatmentQuantity=ids.includes('p5')?Number(b.treatmentQuantity??1):1,extraPrice=Number(c.antimicotico_extra_price??2500);
-  if(name.length<3||phone.replace(/\D/g,'').length<8||!/^\d{4}-\d\d-\d\d$/.test(date)||!/^\d{4}$/.test(t)||!ids.length)return J({error:'Completá todos los datos'},400);
+  const name=clean(b.name,80),phoneInput=clean(b.phone,30),date=clean(b.date,10),t=clean(b.time,4),ids=Array.isArray(b.serviceIds)?[...new Set(b.serviceIds)].slice(0,10):[],treatmentQuantity=ids.includes('p5')?Number(b.treatmentQuantity??1):1,extraPrice=Number(c.antimicotico_extra_price??2500);
+  if(!hasFullName(name))return J({error:'Ingresá nombre y apellido.'},400);
+  if(!hasValidLocalPhone(phoneInput))return J({error:'Ingresá el teléfono con 11 y el número, sin 549 (por ejemplo, 11 3600-9440).'},400);
+  if(!/^\d{4}-\d\d-\d\d$/.test(date)||!/^\d{4}$/.test(t)||!ids.length)return J({error:'Completá todos los datos'},400);
+  const phone=`549${localPhoneDigits(phoneInput)}`;
   if(ids.includes('p5')&&(!Number.isInteger(treatmentQuantity)||treatmentQuantity<1||treatmentQuantity>10))return J({error:'Cantidad de dedos inválida'},400);
   if(ids.includes('p5')&&(!Number.isSafeInteger(extraPrice)||extraPrice<=0))return J({error:'Precio adicional inválido'},500);
   const rows=(await DB.prepare(`SELECT * FROM services WHERE active=1 AND id IN(${ids.map(()=>'?').join(',')})`).bind(...ids).all()).results;
