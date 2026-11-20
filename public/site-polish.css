@@ -771,3 +771,104 @@ footer {
     appearance: none;
   }
 }
+
+
+/* Contraste reforzado: títulos y textos deben leerse sin esfuerzo sobre los fondos claros. */
+:root {
+  --premium-ink: #302129;
+  --premium-muted: #5f4b54;
+  --premium-wine: #713448;
+}
+
+body,
+p,
+.card p,
+.sub,
+.note,
+.testi,
+.social-copy p,
+.instagram-caption,
+.instagram-identity,
+.instagram-identity small,
+.treatment-lead,
+.treatment-care,
+footer {
+  color: var(--premium-muted);
+}
+
+h1, h2, h3,
+.card h3,
+.treatment-content h2,
+.social-copy h2,
+#p-reservar > section > .wrap > h2,
+.step > b,
+.logo {
+  color: var(--premium-ink);
+}
+
+.eyebrow {
+  color: #713448;
+  font-weight: 700;
+}
+
+.card .meta span:first-child,
+.treatment-price strong,
+.ben b,
+.instagram-follow,
+nav a:not(.keep):hover,
+nav a.act {
+  color: #713448;
+}
+
+.sub,
+.card p,
+.social-copy p,
+.treatment-lead,
+.treatment-care,
+.instagram-caption,
+.note,
+footer {
+  color: #5f4b54;
+}
+
+/* El hero es la excepción intencional: texto blanco sobre fotografía oscurecida. */
+.hero h1 { color: #fff; }
+.hero p { color: #fff7f8; }
+.hero .eyebrow { color: #ffe0e7; }
+
+.btn,
+nav a.keep.btn,
+.tab.on,
+.cal button.on {
+  color: #fff;
+}
+
+.btn.o {
+  color: #713448;
+  border-color: #b98493;
+}
+
+input, textarea, select,
+.chip {
+  color: #302129;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #6b5860;
+  opacity: 1;
+}
+
+.sum .big { color: #713448; }
+
+@media (prefers-color-scheme: dark) {
+  body, p, .card p, .sub, .note, .testi, .social-copy p,
+  .instagram-caption, .instagram-identity, .instagram-identity small,
+  .treatment-lead, .treatment-care, footer {
+    color: #5f4b54;
+  }
+  h1, h2, h3, .card h3, .treatment-content h2, .social-copy h2,
+  #p-reservar > section > .wrap > h2, .step > b, .logo {
+    color: #302129;
+  }
+}
