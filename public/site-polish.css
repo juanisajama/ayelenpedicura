@@ -436,3 +436,21 @@ footer {
     transition-duration: .01ms !important;
   }
 }
+
+
+/* Fix Android Chrome: centrar verticalmente el texto del botón Reservar del header. */
+@media (max-width: 600px) {
+  header nav a.keep.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-height: 40px;
+    line-height: 1.2;
+    vertical-align: middle;
+    margin-block: 0;
+    padding: 8px 6px !important;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+}
